@@ -9,6 +9,27 @@
   # Node.js version (if needed)
   NODE_VERSION = "18"
 
+# Force HTTPS redirect
+[[redirects]]
+  from = "http://lenslink.live/*"
+  to = "https://lenslink.live/:splat"
+  status = 301
+  force = true
+
+# Force HTTPS for www subdomain
+[[redirects]]
+  from = "http://www.lenslink.live/*"
+  to = "https://lenslink.live/:splat"
+  status = 301
+  force = true
+
+# Redirect www to non-www (HTTPS)
+[[redirects]]
+  from = "https://www.lenslink.live/*"
+  to = "https://lenslink.live/:splat"
+  status = 301
+  force = true
+
 # Redirect rules for single page application
 [[redirects]]
   from = "/*"
@@ -23,6 +44,10 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    # Force HTTPS
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Security headers
+    Content-Security-Policy = "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; img-src 'self' https: data: blob:; font-src 'self' https: data:;"
 
 [[headers]]
   for = "*.js"
@@ -44,3 +69,15 @@
   from = "/404"
   to = "/index.html"
   status = 404
+
+# SSL/TLS Configuration
+[context.production.environment]
+  HTTPS_REDIRECT = "true"
+  SSL_VERIFY = "true"
+
+# Additional security headers for SSL
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Ensure secure connections
+    X-Forwarded-Proto = "https"
