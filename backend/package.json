@@ -4,7 +4,7 @@
   "description": "Backend server for LensLink photography platform with user authentication and database storage",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node server-railway.js",
     "dev": "nodemon server.js",
     "build": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
