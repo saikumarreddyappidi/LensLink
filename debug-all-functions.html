@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LensLink Function Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-button { 
+            margin: 5px; padding: 10px 15px; background: #3b82f6; color: white; 
+            border: none; border-radius: 5px; cursor: pointer; 
+        }
+        .test-button:hover { background: #2563eb; }
+        .error { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+        .success { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 LensLink Function Debug Test</h1>
+        <p>Testing all functions used in onclick handlers and data-page navigation.</p>
+        
+        <div class="test-section">
+            <h3>🧭 Navigation Functions</h3>
+            <button class="test-button" onclick="testShowPage('home')">Test Home</button>
+            <button class="test-button" onclick="testShowPage('about')">Test About</button>
+            <button class="test-button" onclick="testShowPage('contact')">Test Contact</button>
+            <button class="test-button" onclick="testShowPage('login')">Test Login</button>
+            <div id="nav-results" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔍 Search Functions</h3>
+            <button class="test-button" onclick="testFunction('searchRegisteredPhotographers')">Test searchRegisteredPhotographers</button>
+            <button class="test-button" onclick="testFunction('searchPhotographers')">Test searchPhotographers</button>
+            <div id="search-results" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📄 PDF Functions</h3>
+            <button class="test-button" onclick="testFunction('generatePortfolioPDF')">Test generatePortfolioPDF</button>
+            <div id="pdf-results" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📝 Authentication Functions</h3>
+            <button class="test-button" onclick="testFunction('handleLogin')">Test handleLogin</button>
+            <button class="test-button" onclick="testFunction('handleRegister')">Test handleRegister</button>
+            <button class="test-button" onclick="testFunction('handleLoginBackup')">Test handleLoginBackup</button>
+            <button class="test-button" onclick="testFunction('handleRegisterBackup')">Test handleRegisterBackup</button>
+            <div id="auth-results" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔄 Modal Functions</h3>
+            <button class="test-button" onclick="testFunction('closeBookingModal')">Test closeBookingModal</button>
+            <div id="modal-results" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🌐 Global Window Object Test</h3>
+            <button class="test-button" onclick="checkGlobalFunctions()">Check All Global Functions</button>
+            <div id="global-results" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Load the main LensLink script
+        const script = document.createElement('script');
+        script.src = 'https://lenslink.live/index.html';
+        script.onload = function() {
+            console.log('✅ Main script loaded');
+        };
+        script.onerror = function() {
+            console.error('❌ Failed to load main script');
+        };
+        // Don't append the script, just test the functions
+
+        function testShowPage(pageId) {
+            const results = document.getElementById('nav-results');
+            try {
+                if (typeof window.showPage === 'function') {
+                    results.innerHTML += `<div class="success">✅ showPage('${pageId}') - Function exists</div>`;
+                    // Test if it would work (don't actually call it since we don't have the full page)
+                } else {
+                    results.innerHTML += `<div class="error">❌ showPage - Function not found in window object</div>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<div class="error">❌ showPage('${pageId}') - Error: ${error.message}</div>`;
+            }
+        }
+
+        function testFunction(functionName) {
+            const resultContainers = {
+                'searchRegisteredPhotographers': 'search-results',
+                'searchPhotographers': 'search-results',
+                'generatePortfolioPDF': 'pdf-results',
+                'handleLogin': 'auth-results',
+                'handleRegister': 'auth-results',
+                'handleLoginBackup': 'auth-results',
+                'handleRegisterBackup': 'auth-results',
+                'closeBookingModal': 'modal-results'
+            };
+            
+            const containerId = resultContainers[functionName] || 'global-results';
+            const results = document.getElementById(containerId);
+            
+            try {
+                if (typeof window[functionName] === 'function') {
+                    results.innerHTML += `<div class="success">✅ ${functionName} - Function exists and is accessible</div>`;
+                } else if (typeof window[functionName] !== 'undefined') {
+                    results.innerHTML += `<div class="error">⚠️ ${functionName} - Exists but not a function (${typeof window[functionName]})</div>`;
+                } else {
+                    results.innerHTML += `<div class="error">❌ ${functionName} - Function not found in window object</div>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<div class="error">❌ ${functionName} - Error: ${error.message}</div>`;
+            }
+        }
+
+        function checkGlobalFunctions() {
+            const results = document.getElementById('global-results');
+            results.innerHTML = '<h4>Global Function Check:</h4>';
+            
+            const functionsToCheck = [
+                'showPage',
+                'handleLogin', 
+                'handleRegister',
+                'handleLoginBackup',
+                'handleRegisterBackup',
+                'searchRegisteredPhotographers',
+                'searchPhotographers',
+                'generatePortfolioPDF',
+                'closeBookingModal'
+            ];
+            
+            let foundCount = 0;
+            functionsToCheck.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    results.innerHTML += `<div class="success">✅ window.${func}</div>`;
+                    foundCount++;
+                } else {
+                    results.innerHTML += `<div class="error">❌ window.${func}</div>`;
+                }
+            });
+            
+            results.innerHTML += `<div style="margin-top: 15px; padding: 10px; background: ${foundCount === functionsToCheck.length ? '#f0fdf4' : '#fef2f2'}; border-radius: 5px;">
+                <strong>Summary: ${foundCount}/${functionsToCheck.length} functions found</strong>
+            </div>`;
+        }
+
+        // Test immediately when page loads
+        window.onload = function() {
+            setTimeout(() => {
+                checkGlobalFunctions();
+            }, 1000);
+        };
+
+        // Add a manual test for the actual website
+        function testOnActualSite() {
+            window.open('https://lenslink.live', '_blank');
+        }
+    </script>
+</body>
+</html>

@@ -896,10 +896,10 @@
             return { user };
         }
         
-        // Initialize backend connection on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            testBackendConnection();
-        });
+        // Initialize backend connection on page load - MOVED TO MAIN DOMContentLoaded
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     testBackendConnection();
+        // });
         
         // Local Storage Configuration (Enhanced with Backend Integration)
         const STORAGE_KEYS = {
@@ -1215,6 +1215,9 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 DOM Content Loaded - Initializing LensLink');
+            
+            // Test backend connection first
+            testBackendConnection();
             
             // Load data from localStorage first
             loadFromLocalStorage();
