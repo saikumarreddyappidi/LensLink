@@ -913,6 +913,37 @@
         let allUsers = [];
         let allPhotographers = [];
 
+        // Global Page Navigation Function - Make globally accessible
+        window.showPage = function(pageId) {
+            console.log('📍 Navigating to page:', pageId);
+            
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            const activePage = document.getElementById(pageId);
+            if (activePage) {
+                activePage.classList.add('active');
+                window.scrollTo(0, 0);
+                console.log('✅ Page activated:', pageId);
+            } else {
+                console.error('❌ Page not found:', pageId);
+            }
+            
+            // Load specific page data
+            setTimeout(() => {
+                if (pageId === 'find-photographers') {
+                    loadRegisteredPhotographers();
+                } else if (pageId === 'book-photographer') {
+                    displayPhotographersInBookingPage(allPhotographers);
+                } else if (pageId === 'photographer-dashboard-page') {
+                    if (currentUser && currentUser.role === 'photographer') {
+                        loadPhotographerDashboard();
+                    }
+                }
+            }, 100);
+        }
+
         // Load data from localStorage
         function loadFromLocalStorage() {
             allUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
@@ -1607,26 +1638,22 @@
             showLoading('login-form', true);
 
             try {
-                // Use enhanced backend integration
-                await loginUserWithBackend({ email, password });
+                // Try backend login first if available
+                if (backendAvailable) {
+                    await loginUserWithBackend({ email, password });
+                    updateUIAfterLogin();
+                    navigateTo('user-dashboard');
+                    emailInput.value = '';
+                    passwordInput.value = '';
+                    return;
+                }
                 
-                // Update UI
-                updateUIAfterLogin();
-                navigateTo('user-dashboard');
-                emailInput.value = '';
-                passwordInput.value = '';
-                
-            } catch (error) {
-                showMessage('login-error', error.message, 'error');
-            } finally {
-                showLoading('login-form', false);
-            }
-                // Reload user data to ensure we have latest data
+                // Fallback to localStorage
                 loadFromLocalStorage();
                 
                 const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
                 
-                if (user && user.password === password) { // Check actual stored password
+                if (user && user.password === password) {
                     currentUser = user;
                     localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
                     
@@ -1647,7 +1674,19 @@
                             loadRegisteredPhotographers();
                         }
                     }, 1000);
+                } else {
+                    showMessage('login-error', 'Invalid email or password', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('login-error', 'Login failed. Please try again.', 'error');
+            } finally {
+                showLoading('login-form', false);
+            }
         }
+
+        // Make login function globally accessible
+        window.handleLogin = handleLogin;
 
         let isRegistering = false; // Prevent double registration
         
@@ -4218,7 +4257,6 @@ Thank you for your booking! ✨
                         <p>Location: ${document.getElementById('register-location')?.value || ''}</p>
                     </div>
                 </body>
-                </html>
             `;
             
             portfolioWindow.document.write(portfolioHTML);
