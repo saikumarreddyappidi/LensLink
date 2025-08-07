@@ -971,8 +971,8 @@
         const userAvatar = document.getElementById('user-avatar');
         const photographerMenu = document.getElementById('photographer-menu');
 
-        // Global Page Navigation Function
-        function showPage(pageId) {
+        // Global Page Navigation Function - Make globally accessible
+        window.showPage = function(pageId) {
             console.log('📍 Navigating to page:', pageId);
             
             const pages = document.querySelectorAll('.page');
@@ -2570,8 +2570,8 @@
         window.previewEditPortfolioImages = previewEditPortfolioImages;
         window.removeEditPortfolioImage = removeEditPortfolioImage;
         
-        // Debug test function for edit profile
-        function testEditProfile() {
+        // Debug test function for edit profile - Make globally accessible
+        window.testEditProfile = function() {
             console.log('🔧 TEST: Edit profile button clicked');
             console.log('🔧 TEST: Current user:', currentUser);
             console.log('🔧 TEST: User role:', currentUser?.role);
@@ -2618,9 +2618,6 @@
                 alert('❌ TEST: Edit profile page element not found in DOM');
             }
         }
-        
-        // Make test function globally available
-        window.testEditProfile = testEditProfile;
 
         // --- UI Functions ---
         function updateUI() {
@@ -2926,7 +2923,8 @@
             initializeTimeSelection();
         }
 
-        function closeBookingModal() {
+        // Make globally accessible
+        window.closeBookingModal = function() {
             const modal = document.getElementById('booking-modal');
             modal.classList.add('hidden');
         }
@@ -3370,7 +3368,8 @@ Thank you for your booking! ✨
             }).join('');
         }
 
-        function searchRegisteredPhotographers() {
+        // Make function globally accessible
+        window.searchRegisteredPhotographers = function() {
             const searchTerm = document.getElementById('photographer-search').value.toLowerCase();
             const specialty = document.getElementById('specialty-filter').value;
 
@@ -3384,8 +3383,8 @@ Thank you for your booking! ✨
             displayRegisteredPhotographers(filtered);
         }
 
-        // Search photographers with filters
-        function searchPhotographers() {
+        // Search photographers with filters - Make globally accessible
+        window.searchPhotographers = function() {
             const searchTerm = document.getElementById('search-photographer').value.toLowerCase();
             const specialty = document.getElementById('filter-specialty').value;
             const location = document.getElementById('filter-location').value.toLowerCase();
@@ -4327,7 +4326,8 @@ Thank you for your booking! ✨
             document.body.insertAdjacentHTML('beforeend', modalHTML);
         }
         
-        function closePortfolioModal() {
+        // Make globally accessible
+        window.closePortfolioModal = function() {
             const modal = document.getElementById('portfolio-modal');
             if (modal) modal.remove();
         }
