@@ -4,9 +4,9 @@
   "description": "LensLink Photography Booking Platform",
   "main": "backend/server.js",
   "scripts": {
-    "start": "node backend/server.js",
+    "start": "cd backend && node server.js",
     "dev": "cd backend && nodemon server.js",
-    "install": "cd backend && npm install",
+    "install-backend": "cd backend && npm install",
     "build": "cd backend && npm install",
     "postinstall": "cd backend && npm install"
   },
