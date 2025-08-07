@@ -1,19 +1,20 @@
 {
-  "name": "lenslink-backend",
+  "name": "lenslink-fullstack",
   "version": "1.0.0",
-  "description": "Backend for LensLink Photography Booking Platform",
-  "main": "server.js",
+  "description": "LensLink Photography Booking Platform with Backend API",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && nodemon server.js",
+    "postinstall": "cd backend && npm install",
+    "build": "cd backend && npm install",
     "serve": "node simple-server.js",
-    "build": "echo 'Build completed - static files ready for deployment'",
     "deploy": "npm run build && npm run serve",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "cd backend && npm install"
   },
-  "keywords": ["photography", "booking", "express", "mongodb"],
-  "author": "LensLink Team",
+  "keywords": ["photography", "booking", "express", "mongodb", "railway"],
+  "author": "SaiKumarReddy",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
@@ -25,7 +26,9 @@
     "express-validator": "^7.0.1",
     "multer": "^1.4.5-lts.1",
     "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5"
+    "express-rate-limit": "^7.1.5",
+    "validator": "^13.11.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
