@@ -754,7 +754,154 @@
     </footer>
 
     <script>
-        // Local Storage Configuration (No API needed)
+        // 🚀 Railway Backend Integration
+        const API_BASE_URL = 'https://web-production-eae71.up.railway.app/api';
+        let backendAvailable = false;
+        
+        // Test backend connection
+        async function testBackendConnection() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const result = await response.json();
+                console.log('✅ Railway Backend Connected:', result);
+                backendAvailable = true;
+                
+                // Update UI to show backend status
+                updateBackendStatus(true);
+                return true;
+            } catch (error) {
+                console.warn('⚠️ Railway Backend unavailable, using localStorage fallback');
+                backendAvailable = false;
+                updateBackendStatus(false);
+                return false;
+            }
+        }
+        
+        // Update backend status in UI
+        function updateBackendStatus(connected) {
+            // Update the LocalStorage Database badge
+            const badges = document.querySelectorAll('.bg-indigo-100');
+            badges.forEach(badge => {
+                if (badge.textContent.includes('LocalStorage')) {
+                    badge.className = connected ? 'bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full' : 'bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full';
+                    badge.textContent = connected ? 'Railway Cloud Database ☁️' : 'LocalStorage Database 💾';
+                }
+            });
+            
+            // Update database description
+            const descriptions = document.querySelectorAll('p');
+            descriptions.forEach(p => {
+                if (p.textContent.includes('Browser LocalStorage')) {
+                    p.textContent = connected ? 
+                        'Railway cloud database for cross-device authentication and data persistence' :
+                        'Browser LocalStorage for persistent user data, bookings, and photographer profiles';
+                }
+            });
+        }
+        
+        // API Helper Function
+        async function apiCall(endpoint, options = {}) {
+            if (!backendAvailable) {
+                throw new Error('Backend not available');
+            }
+            
+            const token = localStorage.getItem('authToken');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            if (token && endpoint !== '/health') {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                ...options,
+                headers
+            });
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+            
+            return await response.json();
+        }
+        
+        // Enhanced Authentication Functions
+        async function registerUserWithBackend(userData) {
+            if (backendAvailable) {
+                try {
+                    const response = await apiCall('/auth/register', {
+                        method: 'POST',
+                        body: JSON.stringify(userData)
+                    });
+                    
+                    showAlert('✅ Account created successfully with cloud backup!', 'success');
+                    return response;
+                } catch (error) {
+                    console.warn('Backend registration failed, using localStorage');
+                }
+            }
+            
+            // Fallback to localStorage
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
+            const existingUser = users.find(u => u.email === userData.email);
+            
+            if (existingUser) {
+                throw new Error('User already exists');
+            }
+            
+            const newUser = {
+                id: Date.now().toString(),
+                ...userData,
+                createdAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
+            showAlert('✅ Account created successfully (local storage)', 'success');
+            return { user: newUser };
+        }
+        
+        async function loginUserWithBackend(credentials) {
+            if (backendAvailable) {
+                try {
+                    const response = await apiCall('/auth/login', {
+                        method: 'POST',
+                        body: JSON.stringify(credentials)
+                    });
+                    
+                    localStorage.setItem('authToken', response.token);
+                    localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(response.user));
+                    currentUser = response.user;
+                    
+                    showAlert('✅ Login successful with cloud sync!', 'success');
+                    return response;
+                } catch (error) {
+                    console.warn('Backend login failed, trying localStorage');
+                }
+            }
+            
+            // Fallback to localStorage
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
+            const user = users.find(u => u.email === credentials.email);
+            
+            if (!user) {
+                throw new Error('Invalid email or password');
+            }
+            
+            localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(user));
+            currentUser = user;
+            showAlert('✅ Login successful (local storage)', 'success');
+            return { user };
+        }
+        
+        // Initialize backend connection on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            testBackendConnection();
+        });
+        
+        // Local Storage Configuration (Enhanced with Backend Integration)
         const STORAGE_KEYS = {
             users: 'lenslink_users',
             currentUser: 'lenslink_current_user',
@@ -1430,7 +1577,7 @@
             }
         }
 
-        // Authentication Functions (Local Storage)
+        // Authentication Functions (Enhanced with Backend Integration)
         async function handleLogin(e) {
             e.preventDefault();
             
@@ -1459,8 +1606,21 @@
             clearMessages();
             showLoading('login-form', true);
 
-            // Simulate API delay
-            setTimeout(() => {
+            try {
+                // Use enhanced backend integration
+                await loginUserWithBackend({ email, password });
+                
+                // Update UI
+                updateUIAfterLogin();
+                navigateTo('user-dashboard');
+                emailInput.value = '';
+                passwordInput.value = '';
+                
+            } catch (error) {
+                showMessage('login-error', error.message, 'error');
+            } finally {
+                showLoading('login-form', false);
+            }
                 // Reload user data to ensure we have latest data
                 loadFromLocalStorage();
                 
@@ -1487,12 +1647,6 @@
                             loadRegisteredPhotographers();
                         }
                     }, 1000);
-                } else {
-                    showMessage('login-error', 'Invalid email or password. Please check your credentials.', 'error');
-                }
-                
-                showLoading('login-form', false);
-            }, 500);
         }
 
         let isRegistering = false; // Prevent double registration
@@ -1659,6 +1813,20 @@
                         allPhotographers.push(newUser);
                         console.log('✅ Added photographer to photographers list:', newUser.name);
                         console.log('📊 Total photographers now:', allPhotographers.length);
+                    }
+                    
+                    // 🚀 Try to save to Railway backend first
+                    try {
+                        await registerUserWithBackend({
+                            name: newUser.name,
+                            email: newUser.email,
+                            password: newUser.password,
+                            role: newUser.role,
+                            phone: newUser.phone
+                        });
+                        console.log('☁️ User registered with Railway backend');
+                    } catch (backendError) {
+                        console.warn('⚠️ Backend registration failed, continuing with localStorage:', backendError);
                     }
                     
                     allUsers.push(newUser);
