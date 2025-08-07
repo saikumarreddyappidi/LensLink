@@ -9,12 +9,12 @@
   # Node.js version (if needed)
   NODE_VERSION = "18"
 
-# Temporarily disable HTTPS redirects for troubleshooting
-# [[redirects]]
-#   from = "http://lenslink.live/*"
-#   to = "https://lenslink.live/:splat"
-#   status = 301
-#   force = true
+# Force HTTPS redirect (now working!)
+[[redirects]]
+  from = "http://lenslink.live/*"
+  to = "https://lenslink.live/:splat"
+  status = 301
+  force = true
 
 # Force HTTPS for www subdomain
 [[redirects]]
