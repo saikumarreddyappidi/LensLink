@@ -4427,6 +4427,9 @@ Thank you for your booking! ✨
             }, 500);
         }
 
+        // Make generatePortfolioPDF globally accessible
+        window.generatePortfolioPDF = generatePortfolioPDF;
+
         // Portfolio viewer functions for clients
         function viewPhotographerPortfolioPDF(photographerId) {
             const photographer = allPhotographers.find(p => p.id === photographerId);
