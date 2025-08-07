@@ -1055,6 +1055,164 @@
             }, 100);
         }
 
+        // Authentication Functions (Enhanced with Backend Integration) - MOVED BEFORE DOMContentLoaded
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('login-email');
+            const passwordInput = document.getElementById('login-password');
+            
+            if (!emailInput || !passwordInput) {
+                console.error('Login form inputs not found');
+                return;
+            }
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            // Basic validation
+            if (!email.trim()) {
+                showMessage('login-error', 'Please enter your email address', 'error');
+                return;
+            }
+            
+            if (!password.trim()) {
+                showMessage('login-error', 'Please enter your password', 'error');
+                return;
+            }
+            
+            clearMessages();
+            showLoading('login-form', true);
+
+            try {
+                // Fallback to localStorage
+                loadFromLocalStorage();
+                
+                const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+                
+                if (user && user.password === password) {
+                    currentUser = user;
+                    localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
+                    
+                    showMessage('login-success', 'Login successful! Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        updateUI();
+                        
+                        // Clear form
+                        emailInput.value = '';
+                        passwordInput.value = '';
+                        
+                        if (currentUser.role === 'photographer') {
+                            showPage('photographer-dashboard-page');
+                            loadPhotographerDashboard();
+                        } else {
+                            showPage('find-photographers');
+                            loadRegisteredPhotographers();
+                        }
+                    }, 1000);
+                } else {
+                    showMessage('login-error', 'Invalid email or password', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('login-error', 'Login failed. Please try again.', 'error');
+            } finally {
+                showLoading('login-form', false);
+            }
+        }
+
+        // Register function
+        async function handleRegister(e) {
+            e.preventDefault();
+            console.log('🚀 Register function called');
+            
+            // Get form values
+            const name = document.getElementById('register-name')?.value;
+            const email = document.getElementById('register-email')?.value;
+            const password = document.getElementById('register-password')?.value;
+            const role = document.getElementById('register-role')?.value;
+            const phone = document.getElementById('register-phone')?.value;
+            
+            // Basic validation
+            if (!name || !email || !password || !role) {
+                showMessage('register-error', 'Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('register-error', 'Password must be at least 6 characters long', 'error');
+                return;
+            }
+            
+            clearMessages();
+            showLoading('register-form', true);
+            
+            try {
+                // Check if user already exists
+                loadFromLocalStorage();
+                const existingUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+                
+                if (existingUser) {
+                    showMessage('register-error', 'An account with this email already exists', 'error');
+                    return;
+                }
+                
+                // Create new user
+                const newUser = {
+                    id: Date.now().toString(),
+                    name,
+                    email,
+                    password,
+                    role,
+                    phone,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Add photographer-specific fields
+                if (role === 'photographer') {
+                    newUser.location = document.getElementById('register-location')?.value || '';
+                    newUser.experience = document.getElementById('register-experience')?.value || '1';
+                    newUser.hourlyRate = document.getElementById('register-rate')?.value || '100';
+                    newUser.specialties = ['Portrait', 'Wedding']; // Default specialties
+                    newUser.portfolio = [];
+                }
+                
+                // Save user
+                allUsers.push(newUser);
+                if (role === 'photographer') {
+                    allPhotographers.push(newUser);
+                }
+                
+                currentUser = newUser;
+                saveToLocalStorage();
+                
+                showMessage('register-success', 'Registration successful! Redirecting...', 'success');
+                
+                setTimeout(() => {
+                    updateUI();
+                    
+                    if (role === 'photographer') {
+                        showPage('photographer-dashboard-page');
+                        loadPhotographerDashboard();
+                    } else {
+                        showPage('find-photographers');
+                        loadRegisteredPhotographers();
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showMessage('register-error', 'Registration failed. Please try again.', 'error');
+            } finally {
+                showLoading('register-form', false);
+            }
+        }
+
+        // Make functions globally accessible
+        window.handleLogin = handleLogin;
+        window.handleRegister = handleRegister;
+
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 DOM Content Loaded - Initializing LensLink');
             
