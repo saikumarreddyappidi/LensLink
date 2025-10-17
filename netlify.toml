@@ -1,3 +1,4 @@
+# Re-deploy to clear cache - 2025-10-18
 [build]
   # Build command (not needed for static site)
   command = ""
