@@ -31,12 +31,7 @@
   status = 301
   force = true
 
-# Redirect rules for single page application
-[[redirects]]
-  from = "/api/*"
-  to = "https://lenslink-production.up.railway.app/api/:splat"
-  status = 200
-  force = true
+
 
 [[redirects]]
   from = "/*"
