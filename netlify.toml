@@ -32,6 +32,12 @@
 
 # Redirect rules for single page application
 [[redirects]]
+  from = "/api/*"
+  to = "https://web-production-eae71.up.railway.app/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
