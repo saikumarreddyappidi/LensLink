@@ -12,7 +12,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// Serve index.html for all routes (SPA behavior)
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'LensLink Simple Server is running',
+    database: 'localStorage mode'
+  });
+});
+
+// Serve index.html for all other routes (SPA behavior)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
