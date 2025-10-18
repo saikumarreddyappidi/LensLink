@@ -215,8 +215,8 @@
                         <p class="text-sm text-slate-600">Browser LocalStorage for persistent user data, bookings, and photographer profiles</p>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-lg">
-                        <h4 class="font-semibold text-slate-800 mb-2">🔧 Development</h4>
-                        <p class="text-sm text-slate-600">Vanilla JavaScript with ES6+ features, modular architecture, and cross-browser compatibility</p>
+                        <h4 class="font-semibold text-slate-800 mb-2">� Secure Platform</h4>
+                        <p class="text-sm text-slate-600">Professional-grade security with encrypted passwords and secure authentication for your safety</p>
                     </div>
                 </div>
                 <div class="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
@@ -420,19 +420,46 @@
                                 <textarea id="register-bio" rows="3" placeholder="Tell clients about your photography style and experience..." class="mt-1 block w-full p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent"></textarea>
                             </div>
                             <div>
-                                <label for="register-specialties" class="block text-sm font-medium text-slate-700">Specialties</label>
-                                <select id="register-specialties" multiple class="mt-1 block w-full p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent" style="height: 120px;">
-                                    <option value="weddings">Weddings</option>
-                                    <option value="portraits">Portraits</option>
-                                    <option value="events">Events</option>
-                                    <option value="commercial">Commercial</option>
-                                    <option value="fashion">Fashion</option>
-                                    <option value="nature">Nature</option>
-                                    <option value="street">Street Photography</option>
-                                    <option value="sports">Sports</option>
-                                    <option value="other">Other</option>
-                                </select>
-                                <p class="text-xs text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple specialties</p>
+                                <label class="block text-sm font-medium text-slate-700 mb-3">Specialties</label>
+                                <div id="register-specialties-checkboxes" class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-slate-50 rounded-lg border">
+                                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                        <input type="checkbox" value="weddings" class="specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                        <span class="text-sm text-slate-700">Weddings</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                        <input type="checkbox" value="portraits" class="specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                        <span class="text-sm text-slate-700">Portraits</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                        <input type="checkbox" value="events" class="specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                        <span class="text-sm text-slate-700">Events</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                        <input type="checkbox" value="commercial" class="specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                        <span class="text-sm text-slate-700">Commercial</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                        <input type="checkbox" value="fashion" class="specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                        <span class="text-sm text-slate-700">Fashion</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                        <input type="checkbox" value="nature" class="specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                        <span class="text-sm text-slate-700">Nature</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                        <input type="checkbox" value="street" class="specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                        <span class="text-sm text-slate-700">Street Photography</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                        <input type="checkbox" value="sports" class="specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                        <span class="text-sm text-slate-700">Sports</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                        <input type="checkbox" value="other" class="specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                        <span class="text-sm text-slate-700">Other</span>
+                                    </label>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-2">Select all specialties that apply to your photography services</p>
                             </div>
                             <div>
                                 <label for="register-hourly-rate" class="block text-sm font-medium text-slate-700">Hourly Rate ($)</label>
@@ -526,13 +553,8 @@
                         <div id="dashboard-profile-info">
                             <!-- Will be populated by JavaScript -->
                         </div>
-                        <button onclick="console.log('Edit Profile clicked'); showPage('photographer-profile-edit')" class="w-full mt-4 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600">
+                        <button onclick="showPage('photographer-profile-edit')" class="w-full mt-4 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600">
                             Edit Profile
-                        </button>
-                        
-                        <!-- Debug button for testing -->
-                        <button onclick="testEditProfile()" class="w-full mt-2 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 text-sm">
-                            🔧 Test Edit Profile (Debug)
                         </button>
                     </div>
                     
@@ -610,21 +632,54 @@
                         </div>
                         
                         <div>
-                            <label for="edit-specialties" class="block text-sm font-medium text-slate-700">Specialties</label>
-                            <select id="edit-specialties" multiple class="mt-1 block w-full p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent" style="height: 120px;">
-                                <option value="weddings">Weddings</option>
-                                <option value="portraits">Portraits</option>
-                                <option value="events">Events</option>
-                                <option value="commercial">Commercial</option>
-                                <option value="fashion">Fashion</option>
-                                <option value="nature">Nature</option>
-                                <option value="street">Street Photography</option>
-                                <option value="sports">Sports</option>
-                                <option value="architecture">Architecture</option>
-                                <option value="landscape">Landscape</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <p class="text-xs text-slate-500 mt-1">Hold Ctrl (or Cmd) to select multiple specialties</p>
+                            <label class="block text-sm font-medium text-slate-700 mb-3">Specialties</label>
+                            <div id="edit-specialties-checkboxes" class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-slate-50 rounded-lg border">
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="weddings" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Weddings</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="portraits" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Portraits</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="events" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Events</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="commercial" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Commercial</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="fashion" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Fashion</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="nature" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Nature</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="street" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Street Photography</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="sports" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Sports</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="architecture" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Architecture</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="landscape" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Landscape</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer p-2 rounded-md hover:bg-white transition-colors">
+                                    <input type="checkbox" value="other" class="edit-specialty-checkbox text-orange-500 focus:ring-orange-400 rounded">
+                                    <span class="text-sm text-slate-700">Other</span>
+                                </label>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">Select all specialties that apply to your photography services</p>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -836,29 +891,19 @@
                         body: JSON.stringify(userData)
                     });
                     
-                    showAlert('✅ Account created successfully with cloud backup!', 'success');
+                    showAlert('✅ Account created successfully with cloud database!', 'success');
                     return response;
                 } catch (error) {
-                    console.warn('Backend registration failed, using localStorage');
+                    console.error('Backend registration failed:', error);
+                    if (error.message.includes('already exists')) {
+                        throw new Error('An account with this email already exists');
+                    }
+                    throw new Error('Registration failed. Please try again.');
                 }
             }
             
-            // Fallback to localStorage
-            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
-            const existingUser = users.find(u => u.email === userData.email);
-            
-            if (existingUser) {
-                throw new Error('User already exists');
-            }
-            
-            const newUser = {
-                id: Date.now().toString(),
-                ...userData,
-                createdAt: new Date().toISOString()
-            };
-            
-            users.push(newUser);
-            localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
+            // Only use localStorage fallback if backend is not available
+            throw new Error('Server is temporarily unavailable. Please try again later.');
             showAlert('✅ Account created successfully (local storage)', 'success');
             return { user: newUser };
         }
@@ -875,25 +920,16 @@
                     localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(response.user));
                     currentUser = response.user;
                     
-                    showAlert('✅ Login successful with cloud sync!', 'success');
+                    showAlert('✅ Login successful with cloud database!', 'success');
                     return response;
                 } catch (error) {
-                    console.warn('Backend login failed, trying localStorage');
+                    console.error('Backend login failed:', error);
+                    throw new Error('Invalid email or password. Please check your credentials.');
                 }
             }
             
-            // Fallback to localStorage
-            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
-            const user = users.find(u => u.email === credentials.email);
-            
-            if (!user) {
-                throw new Error('Invalid email or password');
-            }
-            
-            localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(user));
-            currentUser = user;
-            showAlert('✅ Login successful (local storage)', 'success');
-            return { user };
+            // Only use localStorage fallback if backend is not available
+            throw new Error('Server is temporarily unavailable. Please try again later.');
         }
         
         // Initialize backend connection on page load - MOVED TO MAIN DOMContentLoaded
@@ -1980,8 +2016,8 @@
                     if (role === 'photographer') {
                         console.log('📸 Adding photographer-specific data');
                         const bio = document.getElementById('register-bio').value;
-                        const specialtiesSelect = document.getElementById('register-specialties');
-                        const specialties = Array.from(specialtiesSelect.selectedOptions).map(option => option.value);
+                        const specialtyCheckboxes = document.querySelectorAll('.specialty-checkbox:checked');
+                        const specialties = Array.from(specialtyCheckboxes).map(checkbox => checkbox.value);
                         const hourlyRate = document.getElementById('register-hourly-rate').value;
                         const experience = document.getElementById('register-experience').value;
                         const location = document.getElementById('register-location').value;
@@ -2158,8 +2194,8 @@
                     if (role === 'photographer') {
                         console.log('📸 Adding basic photographer data');
                         const bio = document.getElementById('register-bio').value;
-                        const specialtiesSelect = document.getElementById('register-specialties');
-                        const specialties = Array.from(specialtiesSelect.selectedOptions).map(option => option.value);
+                        const specialtyCheckboxes = document.querySelectorAll('.specialty-checkbox:checked');
+                        const specialties = Array.from(specialtyCheckboxes).map(checkbox => checkbox.value);
                         const hourlyRate = document.getElementById('register-hourly-rate').value;
                         const experience = document.getElementById('register-experience').value;
                         const location = document.getElementById('register-location').value;
@@ -2270,8 +2306,8 @@
             const experience = document.getElementById('edit-experience').value;
             
             // Get selected specialties
-            const specialtiesSelect = document.getElementById('edit-specialties');
-            const specialties = Array.from(specialtiesSelect.selectedOptions).map(option => option.value);
+            const specialtyCheckboxes = document.querySelectorAll('.edit-specialty-checkbox:checked');
+            const specialties = Array.from(specialtyCheckboxes).map(checkbox => checkbox.value);
             
             // Validation
             if (!name) {
@@ -2437,10 +2473,10 @@
             }
             
             // Set selected specialties
-            const specialtiesSelect = document.getElementById('edit-specialties');
-            if (specialtiesSelect && currentUser.specialties) {
-                Array.from(specialtiesSelect.options).forEach(option => {
-                    option.selected = currentUser.specialties.includes(option.value);
+            const specialtyCheckboxes = document.querySelectorAll('.edit-specialty-checkbox');
+            if (specialtyCheckboxes.length > 0 && currentUser.specialties) {
+                specialtyCheckboxes.forEach(checkbox => {
+                    checkbox.checked = currentUser.specialties.includes(checkbox.value);
                 });
             }
             
@@ -2499,10 +2535,10 @@
                 }
                 
                 // Set specialties
-                const specialtiesSelect = document.getElementById('edit-specialties');
-                if (specialtiesSelect && currentUser.specialties) {
-                    Array.from(specialtiesSelect.options).forEach(option => {
-                        option.selected = currentUser.specialties.includes(option.value);
+                const specialtyCheckboxes = document.querySelectorAll('.edit-specialty-checkbox');
+                if (specialtyCheckboxes.length > 0 && currentUser.specialties) {
+                    specialtyCheckboxes.forEach(checkbox => {
+                        checkbox.checked = currentUser.specialties.includes(checkbox.value);
                     });
                 }
                 
@@ -3134,8 +3170,22 @@
 
         function initializeEnhancedBookingCalendar() {
             const calendarDiv = document.getElementById('booking-calendar');
-            if (!calendarDiv) return;
+            if (!calendarDiv) {
+                console.log('Calendar div not found, trying alternative initialization');
+                // Try to find calendar in booking modal
+                setTimeout(() => {
+                    const modalCalendar = document.querySelector('#booking-modal #booking-calendar');
+                    if (modalCalendar) {
+                        initializeCalendarForDiv(modalCalendar);
+                    }
+                }, 100);
+                return;
+            }
             
+            initializeCalendarForDiv(calendarDiv);
+        }
+        
+        function initializeCalendarForDiv(calendarDiv) {
             const today = new Date();
             const currentMonth = today.getMonth();
             const currentYear = today.getFullYear();
@@ -3143,6 +3193,7 @@
             // Create calendar with month navigation for 3 years
             let selectedMonth = currentMonth;
             let selectedYear = currentYear;
+            let selectedDate = null;
             
             function renderCalendar(month, year) {
                 const firstDay = new Date(year, month, 1);
@@ -3154,49 +3205,62 @@
                     'July', 'August', 'September', 'October', 'November', 'December'];
                 
                 let calendarHTML = `
-                    <div class="calendar-header mb-4">
-                        <div class="flex justify-between items-center mb-4">
-                            <button type="button" onclick="changeMonth(-1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&lt;</button>
-                            <h3 class="font-semibold text-lg">${monthNames[month]} ${year}</h3>
-                            <button type="button" onclick="changeMonth(1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&gt;</button>
+                    <div class="mobile-friendly-calendar bg-white rounded-lg shadow-sm border">
+                        <div class="calendar-header p-4 border-b">
+                            <div class="flex justify-between items-center">
+                                <button type="button" onclick="changeMonth(-1)" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
+                                </button>
+                                <h3 class="font-semibold text-lg text-slate-800">${monthNames[month]} ${year}</h3>
+                                <button type="button" onclick="changeMonth(1)" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-7 gap-1 text-center text-xs sm:text-sm font-semibold text-slate-600 mb-2">
-                            <div class="p-2">Sun</div>
-                            <div class="p-2">Mon</div>
-                            <div class="p-2">Tue</div>
-                            <div class="p-2">Wed</div>
-                            <div class="p-2">Thu</div>
-                            <div class="p-2">Fri</div>
-                            <div class="p-2">Sat</div>
-                        </div>
-                        <div class="grid grid-cols-7 gap-1 text-center text-xs sm:text-sm">
+                        <div class="p-4">
+                            <div class="grid grid-cols-7 gap-1 text-center text-sm font-medium text-slate-600 mb-3">
+                                <div class="p-2">Sun</div>
+                                <div class="p-2">Mon</div>
+                                <div class="p-2">Tue</div>
+                                <div class="p-2">Wed</div>
+                                <div class="p-2">Thu</div>
+                                <div class="p-2">Fri</div>
+                                <div class="p-2">Sat</div>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center">
                 `;
                 
                 // Add empty cells for days before the first day of the month
                 for (let i = 0; i < startingDay; i++) {
-                    calendarHTML += '<div class="p-2"></div>';
+                    calendarHTML += '<div class="p-3"></div>';
                 }
                 
                 // Add days of the month
                 for (let day = 1; day <= daysInMonth; day++) {
                     const date = new Date(year, month, day);
                     const dateStr = date.toISOString().split('T')[0];
-                    const isPast = date < today.setHours(0, 0, 0, 0);
+                    const isPast = date < new Date().setHours(0, 0, 0, 0);
                     const isToday = date.toDateString() === new Date().toDateString();
+                    const isSelected = selectedDate === dateStr;
                     
-                    let buttonClass = 'p-1 sm:p-2 w-6 h-6 sm:w-8 sm:h-8 text-xs sm:text-sm rounded hover:bg-orange-100 transition-colors';
+                    let buttonClass = 'w-10 h-10 rounded-lg text-sm font-medium transition-all duration-200 ';
                     if (isPast) {
-                        buttonClass += ' text-gray-400 cursor-not-allowed';
+                        buttonClass += 'text-slate-300 cursor-not-allowed bg-slate-50';
+                    } else if (isSelected) {
+                        buttonClass += 'bg-orange-500 text-white shadow-lg transform scale-105';
+                    } else if (isToday) {
+                        buttonClass += 'bg-orange-100 text-orange-800 font-bold hover:bg-orange-200';
                     } else {
-                        buttonClass += ' cursor-pointer hover:bg-orange-200';
-                    }
-                    if (isToday) {
-                        buttonClass += ' bg-orange-100 font-bold';
+                        buttonClass += 'text-slate-700 hover:bg-orange-50 hover:text-orange-600 cursor-pointer';
                     }
                     
                     calendarHTML += `
                         <button type="button" 
-                                onclick="selectBookingDate('${dateStr}')" 
+                                onclick="selectBookingDate('${dateStr}', this)" 
                                 class="${buttonClass}"
                                 ${isPast ? 'disabled' : ''}>
                             ${day}
@@ -3204,7 +3268,13 @@
                     `;
                 }
                 
-                calendarHTML += '</div></div>';
+                calendarHTML += `
+                            </div>
+                        </div>
+                        ${selectedDate ? `<div class="px-4 pb-4"><div class="bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm text-orange-800">Selected: ${new Date(selectedDate).toLocaleDateString()}</div></div>` : ''}
+                    </div>
+                `;
+                
                 calendarDiv.innerHTML = calendarHTML;
             }
             
@@ -3229,6 +3299,23 @@
                 }
                 
                 renderCalendar(selectedMonth, selectedYear);
+            };
+            
+            // Update selectBookingDate function
+            window.selectBookingDate = function(dateStr, buttonElement) {
+                selectedDate = dateStr;
+                
+                // Update hidden input if it exists
+                const selectedDateInput = document.getElementById('selected-date') || document.getElementById('booking-date');
+                if (selectedDateInput) {
+                    selectedDateInput.value = dateStr;
+                }
+                
+                // Re-render calendar to update selection
+                renderCalendar(selectedMonth, selectedYear);
+                
+                // Show success message
+                console.log('Date selected:', dateStr);
             };
             
             renderCalendar(selectedMonth, selectedYear);
@@ -3299,25 +3386,7 @@
             timeSelect.innerHTML = timeOptions;
         };
 
-        function selectBookingDate(dateStr) {
-            const selectedDateInput = document.getElementById('selected-date');
-            if (selectedDateInput) {
-                selectedDateInput.value = dateStr;
-            }
-            
-            // Update calendar visual selection
-            const buttons = document.querySelectorAll('#booking-calendar button');
-            buttons.forEach(btn => {
-                btn.classList.remove('bg-orange-500', 'text-white');
-                if (!btn.disabled) {
-                    btn.classList.add('bg-slate-50');
-                }
-            });
-            
-            // Highlight selected date
-            event.target.classList.remove('bg-slate-50');
-            event.target.classList.add('bg-orange-500', 'text-white');
-        }
+        // selectBookingDate function is now handled within initializeCalendarForDiv
 
         // Handle booking form submission
         function initializeBookingForm() {
