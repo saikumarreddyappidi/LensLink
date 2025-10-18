@@ -51,6 +51,26 @@
         .booking-step.active {
             display: block;
         }
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .booking-step h3 {
+                font-size: 1.25rem;
+            }
+            
+            .time-slot-btn {
+                padding: 0.5rem;
+                font-size: 0.875rem;
+            }
+            
+            #booking-calendar {
+                font-size: 0.875rem;
+            }
+            
+            #booking-modal .p-6 {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -735,8 +755,8 @@
     </main>
 
     <!-- Booking Modal -->
-    <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-y-auto">
+    <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto mx-2 sm:mx-4">
             <!-- Modal Header -->
             <div class="bg-gradient-to-r from-blue-300 to-indigo-300 text-slate-800 p-6 rounded-t-xl">
                 <div class="flex justify-between items-center">
@@ -776,10 +796,10 @@
                         <h3 class="text-xl font-bold text-slate-800 mb-2">📅 Quick Booking</h3>
                         <p class="text-slate-600">Fill in your booking details</p>
                     </div>
-                    <div class="max-w-2xl mx-auto">
-                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 shadow-sm">
+                    <div class="max-w-2xl mx-auto px-2 sm:px-0">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-6 border border-blue-200 shadow-sm">
                             <form id="simple-booking-form" class="space-y-4">
-                                <div class="grid md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <!-- Date Input -->
                                     <div>
                                         <label class="block text-sm font-semibold text-blue-800 mb-2">📅 Date</label>
@@ -824,14 +844,14 @@
                                 </div>
                                 
                                 <!-- Buttons -->
-                                <div class="flex gap-4 pt-4">
-                                    <button type="button" onclick="closeBookingModal()" class="flex-1 bg-slate-500 hover:bg-slate-600 text-white py-3 rounded-lg font-semibold transition-colors">
+                                <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                                    <button type="button" onclick="closeBookingModal()" class="w-full sm:flex-1 bg-slate-500 hover:bg-slate-600 text-white py-3 rounded-lg font-semibold transition-colors">
                                         ❌ Cancel
                                     </button>
-                                    <button type="button" onclick="switchToStepView()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors">
+                                    <button type="button" onclick="switchToStepView()" class="w-full sm:flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors">
                                         📋 Step-by-Step View
                                     </button>
-                                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-bold transition-all">
+                                    <button type="submit" class="w-full sm:flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-bold transition-all">
                                         ✅ Book Now
                                     </button>
                                 </div>
@@ -846,14 +866,14 @@
                         <h3 class="text-xl font-bold text-slate-800 mb-2">📅 Select Your Preferred Date</h3>
                         <p class="text-slate-600">Choose the date for your photography session</p>
                     </div>
-                    <div class="max-w-md mx-auto">
-                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 shadow-sm">
+                    <div class="max-w-md mx-auto px-2 sm:px-0">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-6 border border-blue-200 shadow-sm">
                             <div id="booking-calendar" class="bg-white rounded-lg shadow-sm"></div>
-                            <div class="mt-4 text-center">
-                                <button type="button" onclick="continueToTime()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="continue-to-time-btn" disabled>
+                            <div class="mt-4 text-center space-y-3 sm:space-y-0">
+                                <button type="button" onclick="continueToTime()" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="continue-to-time-btn" disabled>
                                     Continue to Time Selection →
                                 </button>
-                                <button type="button" onclick="switchToSimpleView()" class="ml-3 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                <button type="button" onclick="switchToSimpleView()" class="w-full sm:w-auto sm:ml-3 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
                                     📋 Simple View
                                 </button>
                             </div>
@@ -867,8 +887,8 @@
                         <h3 class="text-xl font-bold text-slate-800 mb-2">⏰ Choose Your Time</h3>
                         <p class="text-slate-600">Select your preferred time slot</p>
                     </div>
-                    <div class="max-w-lg mx-auto">
-                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200 shadow-sm">
+                    <div class="max-w-lg mx-auto px-2 sm:px-0">
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 sm:p-6 border border-green-200 shadow-sm">
                             <!-- Time Format Selection -->
                             <div class="mb-4">
                                 <label class="block text-sm font-semibold text-green-700 mb-2">Time Format</label>
@@ -896,14 +916,14 @@
                                 <button type="button" class="time-slot-btn bg-white border-2 border-green-200 text-green-800 p-3 rounded-lg hover:bg-green-100 hover:border-green-400 transition-all font-medium shadow-sm" data-time="20:00">8:00 PM</button>
                             </div>
                             
-                            <div class="flex gap-3 justify-center">
-                                <button type="button" onclick="backToDate()" class="bg-slate-500 hover:bg-slate-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                <button type="button" onclick="backToDate()" class="w-full sm:w-auto bg-slate-500 hover:bg-slate-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
                                     ← Back to Date
                                 </button>
-                                <button type="button" onclick="continueToDetails()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="continue-to-details-btn" disabled>
+                                <button type="button" onclick="continueToDetails()" class="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="continue-to-details-btn" disabled>
                                     Continue to Details →
                                 </button>
-                                <button type="button" onclick="switchToSimpleView()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                <button type="button" onclick="switchToSimpleView()" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
                                     📋 Simple View
                                 </button>
                             </div>
@@ -917,12 +937,10 @@
                         <h3 class="text-xl font-bold text-slate-800 mb-2">📝 Session Details</h3>
                         <p class="text-slate-600">Tell us about your photography session</p>
                     </div>
-                    <div class="max-w-lg mx-auto space-y-6">
+                        <div class="max-w-lg mx-auto space-y-6 px-2 sm:px-0">
                         <form id="booking-form" class="space-y-6">
                             <input type="hidden" id="selected-date">
-                            <input type="hidden" id="selected-time">
-                            
-                            <!-- Session Type -->
+                            <input type="hidden" id="selected-time">                            <!-- Session Type -->
                             <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200 shadow-sm">
                                 <div class="flex items-center gap-3 mb-4">
                                     <div class="w-10 h-10 bg-purple-400 rounded-full flex items-center justify-center shadow-md">
@@ -962,15 +980,15 @@
                             </div>
                             
                             <!-- Action Buttons -->
-                            <div class="flex gap-4 pt-4">
-                                <button type="button" onclick="backToTime()" class="flex-1 bg-slate-500 hover:bg-slate-600 text-white py-4 rounded-lg font-semibold transition-colors shadow-lg">
+                            <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                                <button type="button" onclick="backToTime()" class="w-full sm:flex-1 bg-slate-500 hover:bg-slate-600 text-white py-4 rounded-lg font-semibold transition-colors shadow-lg">
                                     ← Back to Time
                                 </button>
-                                <button type="button" onclick="switchToSimpleView()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-4 rounded-lg font-semibold transition-colors shadow-lg">
+                                <button type="button" onclick="switchToSimpleView()" class="w-full sm:flex-1 bg-green-500 hover:bg-green-600 text-white py-4 rounded-lg font-semibold transition-colors shadow-lg">
                                     📋 Simple View
                                 </button>
                                 <button type="submit" 
-                                        class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white py-4 rounded-lg font-bold transition-all shadow-lg transform hover:scale-105">
+                                        class="w-full sm:flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white py-4 rounded-lg font-bold transition-all shadow-lg transform hover:scale-105">
                                     ✅ Book Session
                                 </button>
                             </div>
@@ -3182,8 +3200,8 @@
 
         // --- Initialization ---
         async function initializeApp() {
-            // Ensure all data is loaded
-            loadFromLocalStorage();
+            // Load data from backend first, then fallback to localStorage
+            await loadDataFromBackend();
             
             // Initialize booking form
             initializeBookingForm();
@@ -3193,6 +3211,113 @@
                 updateUI();
             } else {
                 updateUI();
+            }
+        }
+
+        // Load data from backend API
+        async function loadDataFromBackend() {
+            try {
+                console.log('🔄 Loading data from backend...');
+                
+                // Try to fetch photographers from backend
+                const response = await fetch('/api/photographers');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.photographers && data.photographers.length > 0) {
+                        allPhotographers = data.photographers;
+                        console.log('✅ Loaded', allPhotographers.length, 'photographers from backend');
+                        
+                        // Save to localStorage as backup
+                        localStorage.setItem(STORAGE_KEYS.photographers, JSON.stringify(allPhotographers));
+                        
+                        // Display photographers
+                        displayPhotographersInBookingPage(allPhotographers);
+                        return;
+                    } else {
+                        // Backend has no photographers, let's populate it with sample data
+                        console.log('📝 Backend empty, populating with sample photographers...');
+                        await populateBackendWithSampleData();
+                    }
+                }
+                
+                console.log('⚠️ No data from backend, using localStorage...');
+            } catch (error) {
+                console.log('❌ Backend error:', error.message, '- using localStorage');
+            }
+            
+            // Fallback to localStorage
+            loadFromLocalStorage();
+        }
+
+        // Populate backend with sample photographer data
+        async function populateBackendWithSampleData() {
+            const samplePhotographers = [
+                {
+                    name: "Sarah Johnson",
+                    email: "sarah@lenslink.com",
+                    password: "password123",
+                    userType: "photographer",
+                    specialties: ["Portrait", "Wedding"],
+                    hourlyRate: 150,
+                    experience: 5,
+                    location: "New York, NY",
+                    bio: "Passionate photographer specializing in weddings and portraits with a natural, candid style.",
+                    profileImage: "https://images.unsplash.com/photo-1494790108755-2616b612b647?w=400&h=400&fit=crop&crop=face",
+                    portfolio: []
+                },
+                {
+                    name: "Michael Chen",
+                    email: "michael@lenslink.com",
+                    password: "password123",
+                    userType: "photographer",
+                    specialties: ["Commercial", "Fashion"],
+                    hourlyRate: 200,
+                    experience: 8,
+                    location: "Los Angeles, CA",
+                    bio: "Award-winning commercial and fashion photographer with a creative eye for detail.",
+                    profileImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+                    portfolio: []
+                },
+                {
+                    name: "Emily Rodriguez",
+                    email: "emily@lenslink.com",
+                    password: "password123",
+                    userType: "photographer",
+                    specialties: ["Nature", "Landscape"],
+                    hourlyRate: 120,
+                    experience: 6,
+                    location: "Denver, CO",
+                    bio: "Nature enthusiast capturing the beauty of landscapes and wildlife across the country.",
+                    profileImage: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+                    portfolio: []
+                }
+            ];
+
+            try {
+                for (const photographer of samplePhotographers) {
+                    const response = await fetch('/api/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(photographer)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Created photographer:', photographer.name);
+                    } else {
+                        console.log('⚠️ Failed to create photographer:', photographer.name);
+                    }
+                }
+                
+                // Reload photographers after creating them
+                setTimeout(() => {
+                    loadDataFromBackend();
+                }, 1000);
+                
+            } catch (error) {
+                console.log('❌ Error populating backend:', error.message);
             }
         }
 
