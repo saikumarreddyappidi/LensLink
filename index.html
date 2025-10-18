@@ -770,8 +770,78 @@
             </div>
             
             <div class="p-6">
+                <!-- Simple Booking Table View -->
+                <div id="booking-simple-view" class="booking-step">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">📅 Quick Booking</h3>
+                        <p class="text-slate-600">Fill in your booking details</p>
+                    </div>
+                    <div class="max-w-2xl mx-auto">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 shadow-sm">
+                            <form id="simple-booking-form" class="space-y-4">
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <!-- Date Input -->
+                                    <div>
+                                        <label class="block text-sm font-semibold text-blue-800 mb-2">📅 Date</label>
+                                        <input type="date" id="simple-date" class="w-full p-3 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                                    </div>
+                                    <!-- Time Input -->
+                                    <div>
+                                        <label class="block text-sm font-semibold text-blue-800 mb-2">⏰ Time</label>
+                                        <select id="simple-time" class="w-full p-3 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                                            <option value="">Select Time</option>
+                                            <option value="06:00">6:00 AM</option>
+                                            <option value="08:00">8:00 AM</option>
+                                            <option value="10:00">10:00 AM</option>
+                                            <option value="12:00">12:00 PM</option>
+                                            <option value="14:00">2:00 PM</option>
+                                            <option value="16:00">4:00 PM</option>
+                                            <option value="18:00">6:00 PM</option>
+                                            <option value="20:00">8:00 PM</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Session Type -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-blue-800 mb-2">📷 Session Type</label>
+                                    <select id="simple-session-type" class="w-full p-3 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                                        <option value="portrait">🧑‍🤝‍🧑 Portrait Session</option>
+                                        <option value="wedding">💒 Wedding Photography</option>
+                                        <option value="event">🎉 Event Photography</option>
+                                        <option value="commercial">🏢 Commercial Shoot</option>
+                                        <option value="family">👨‍👩‍👧‍👦 Family Photos</option>
+                                        <option value="nature">🌿 Nature & Landscape</option>
+                                        <option value="fashion">👗 Fashion Photography</option>
+                                        <option value="sports">⚽ Sports Photography</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Requirements -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-blue-800 mb-2">✨ Special Requirements</label>
+                                    <textarea id="simple-requirements" class="w-full p-3 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none" rows="3" placeholder="Tell us about your photography vision..."></textarea>
+                                </div>
+                                
+                                <!-- Buttons -->
+                                <div class="flex gap-4 pt-4">
+                                    <button type="button" onclick="closeBookingModal()" class="flex-1 bg-slate-500 hover:bg-slate-600 text-white py-3 rounded-lg font-semibold transition-colors">
+                                        ❌ Cancel
+                                    </button>
+                                    <button type="button" onclick="switchToStepView()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors">
+                                        📋 Step-by-Step View
+                                    </button>
+                                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-bold transition-all">
+                                        ✅ Book Now
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Step 1: Date Selection -->
-                <div id="booking-step-1" class="booking-step">
+                <div id="booking-step-1" class="booking-step hidden">
                     <div class="text-center mb-6">
                         <h3 class="text-xl font-bold text-slate-800 mb-2">📅 Select Your Preferred Date</h3>
                         <p class="text-slate-600">Choose the date for your photography session</p>
@@ -780,8 +850,11 @@
                         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 shadow-sm">
                             <div id="booking-calendar" class="bg-white rounded-lg shadow-sm"></div>
                             <div class="mt-4 text-center">
-                                <button type="button" id="continue-to-time" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <button type="button" onclick="continueToTime()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="continue-to-time-btn" disabled>
                                     Continue to Time Selection →
+                                </button>
+                                <button type="button" onclick="switchToSimpleView()" class="ml-3 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                    📋 Simple View
                                 </button>
                             </div>
                         </div>
@@ -824,11 +897,14 @@
                             </div>
                             
                             <div class="flex gap-3 justify-center">
-                                <button type="button" id="back-to-date" class="bg-slate-500 hover:bg-slate-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                <button type="button" onclick="backToDate()" class="bg-slate-500 hover:bg-slate-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
                                     ← Back to Date
                                 </button>
-                                <button type="button" id="continue-to-details" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <button type="button" onclick="continueToDetails()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="continue-to-details-btn" disabled>
                                     Continue to Details →
+                                </button>
+                                <button type="button" onclick="switchToSimpleView()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                    📋 Simple View
                                 </button>
                             </div>
                         </div>
@@ -887,8 +963,11 @@
                             
                             <!-- Action Buttons -->
                             <div class="flex gap-4 pt-4">
-                                <button type="button" id="back-to-time" class="flex-1 bg-slate-500 hover:bg-slate-600 text-white py-4 rounded-lg font-semibold transition-colors shadow-lg">
+                                <button type="button" onclick="backToTime()" class="flex-1 bg-slate-500 hover:bg-slate-600 text-white py-4 rounded-lg font-semibold transition-colors shadow-lg">
                                     ← Back to Time
+                                </button>
+                                <button type="button" onclick="switchToSimpleView()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-4 rounded-lg font-semibold transition-colors shadow-lg">
+                                    📋 Simple View
                                 </button>
                                 <button type="submit" 
                                         class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white py-4 rounded-lg font-bold transition-all shadow-lg transform hover:scale-105">
@@ -3279,18 +3358,23 @@
             
             modal.classList.remove('hidden');
             
-            // Start with step 1
-            showBookingStep(1);
+            // Start with simple view (table format)
+            showBookingStep('simple');
             
-            // Initialize enhanced calendar with 3 years range
-            initializeEnhancedBookingCalendar();
+            // Initialize simple booking form
+            initializeSimpleBookingForm();
             
-            // Initialize step navigation
-            initializeStepNavigation();
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            const simpleDateInput = document.getElementById('simple-date');
+            if (simpleDateInput) {
+                simpleDateInput.min = today;
+                simpleDateInput.value = today;
+            }
         }
 
         function resetBookingForm() {
-            // Clear all form inputs
+            // Clear step form inputs
             const selectedDateInput = document.getElementById('selected-date');
             const selectedTimeInput = document.getElementById('selected-time');
             const sessionTypeSelect = document.getElementById('session-type');
@@ -3301,10 +3385,28 @@
             if (sessionTypeSelect) sessionTypeSelect.selectedIndex = 0;
             if (requirementsTextarea) requirementsTextarea.value = '';
             
+            // Clear simple form inputs
+            const simpleDateInput = document.getElementById('simple-date');
+            const simpleTimeSelect = document.getElementById('simple-time');
+            const simpleSessionTypeSelect = document.getElementById('simple-session-type');
+            const simpleRequirementsTextarea = document.getElementById('simple-requirements');
+            
+            if (simpleDateInput) simpleDateInput.value = '';
+            if (simpleTimeSelect) simpleTimeSelect.selectedIndex = 0;
+            if (simpleSessionTypeSelect) simpleSessionTypeSelect.selectedIndex = 0;
+            if (simpleRequirementsTextarea) simpleRequirementsTextarea.value = '';
+            
             // Reset time slot selections
             document.querySelectorAll('.time-slot-btn').forEach(btn => {
                 btn.classList.remove('selected', 'bg-green-500', 'text-white', 'border-green-500');
                 btn.classList.add('bg-white', 'border-green-200', 'text-green-800');
+            });
+
+            // Reset button states
+            const continueBtns = ['continue-to-time-btn', 'continue-to-details-btn'];
+            continueBtns.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) btn.disabled = true;
             });
         }
 
@@ -3312,16 +3414,33 @@
             // Hide all steps
             document.querySelectorAll('.booking-step').forEach(step => {
                 step.classList.remove('active');
+                step.classList.add('hidden');
             });
             
             // Show current step
-            const currentStep = document.getElementById(`booking-step-${stepNumber}`);
-            if (currentStep) {
-                currentStep.classList.add('active');
+            if (stepNumber === 'simple') {
+                const simpleView = document.getElementById('booking-simple-view');
+                if (simpleView) {
+                    simpleView.classList.remove('hidden');
+                    simpleView.classList.add('active');
+                }
+                // Hide step indicators for simple view
+                document.querySelectorAll('[id*="step-"][id*="-indicator"]').forEach(indicator => {
+                    indicator.style.display = 'none';
+                });
+            } else {
+                const currentStep = document.getElementById(`booking-step-${stepNumber}`);
+                if (currentStep) {
+                    currentStep.classList.remove('hidden');
+                    currentStep.classList.add('active');
+                }
+                // Show step indicators for step view
+                document.querySelectorAll('[id*="step-"][id*="-indicator"]').forEach(indicator => {
+                    indicator.style.display = 'flex';
+                });
+                // Update step indicators
+                updateStepIndicators(stepNumber);
             }
-            
-            // Update step indicators
-            updateStepIndicators(stepNumber);
         }
 
         function updateStepIndicators(currentStep) {
@@ -3403,6 +3522,93 @@
 
         // Make openBookingModal globally accessible
         window.openBookingModal = openBookingModal;
+
+        // Global navigation functions for buttons
+        window.switchToSimpleView = function() {
+            showBookingStep('simple');
+        }
+
+        window.switchToStepView = function() {
+            showBookingStep(1);
+            initializeEnhancedBookingCalendar();
+        }
+
+        window.continueToTime = function() {
+            const selectedDate = document.getElementById('selected-date').value;
+            if (selectedDate) {
+                showBookingStep(2);
+                initializeTimeSelection();
+            } else {
+                alert('Please select a date first.');
+            }
+        }
+
+        window.backToDate = function() {
+            showBookingStep(1);
+        }
+
+        window.continueToDetails = function() {
+            const selectedTime = document.getElementById('selected-time').value;
+            if (selectedTime) {
+                showBookingStep(3);
+            } else {
+                alert('Please select a time first.');
+            }
+        }
+
+        window.backToTime = function() {
+            showBookingStep(2);
+        }
+
+        // Initialize simple booking form
+        function initializeSimpleBookingForm() {
+            const simpleBookingForm = document.getElementById('simple-booking-form');
+            if (simpleBookingForm) {
+                simpleBookingForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const date = document.getElementById('simple-date').value;
+                    const time = document.getElementById('simple-time').value;
+                    const sessionType = document.getElementById('simple-session-type').value;
+                    const requirements = document.getElementById('simple-requirements').value;
+                    
+                    const photographer = allPhotographers.find(p => p.id === window.currentBookingPhotographer);
+                    
+                    if (photographer && currentUser && date && time) {
+                        // Create booking object
+                        const booking = {
+                            id: 'booking_' + Date.now(),
+                            photographerId: photographer.id,
+                            photographerName: photographer.name,
+                            photographerEmail: photographer.email,
+                            clientId: currentUser.id,
+                            clientName: currentUser.name,
+                            clientEmail: currentUser.email,
+                            clientPhone: currentUser.phone || '',
+                            clientProfileImage: currentUser.profileImage,
+                            date: date,
+                            time: time,
+                            sessionType: sessionType,
+                            requirements: requirements,
+                            status: 'pending',
+                            createdAt: new Date().toISOString(),
+                            totalCost: photographer.hourlyRate || 100
+                        };
+                        
+                        // Store booking in localStorage
+                        let allBookings = JSON.parse(localStorage.getItem('lenslink_bookings') || '[]');
+                        allBookings.push(booking);
+                        localStorage.setItem('lenslink_bookings', JSON.stringify(allBookings));
+                        
+                        // Show success message with booking confirmation
+                        showBookingConfirmation(booking, photographer);
+                        closeBookingModal();
+                    } else {
+                        alert('Please fill in all required fields including date and time.');
+                    }
+                });
+            }
+        }
 
         function initializeEnhancedBookingCalendar() {
             const calendarDiv = document.getElementById('booking-calendar');
@@ -3549,7 +3755,7 @@
                 }
                 
                 // Enable continue button
-                const continueBtn = document.getElementById('continue-to-time');
+                const continueBtn = document.getElementById('continue-to-time-btn');
                 if (continueBtn) {
                     continueBtn.disabled = false;
                 }
@@ -3668,7 +3874,7 @@
                     selectedTimeInput.value = timeValue;
                     
                     // Enable continue to details button
-                    const continueBtn = document.getElementById('continue-to-details');
+                    const continueBtn = document.getElementById('continue-to-details-btn');
                     if (continueBtn) {
                         continueBtn.disabled = false;
                     }
