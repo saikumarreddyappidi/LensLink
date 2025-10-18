@@ -1,13 +1,17 @@
 # Nixpacks configuration for Railway deployment
 
+[variables]
+NODE_ENV = "production"
+NPM_CONFIG_PRODUCTION = "true"
+
 [phases.setup]
-nixPkgs = ["nodejs_18", "npm"]
+nixPkgs = ["nodejs_18"]
 
 [phases.install]
-cmd = "cd backend && npm ci"
+cmd = "cd backend && npm ci --production"
 
 [phases.build]
-cmd = "echo 'No build step required'"
+cmd = "cd backend && npm run build"
 
 [start]
 cmd = "cd backend && node server.js"
