@@ -31,8 +31,14 @@
   status = 301
   force = true
 
+# API Proxy to Railway Backend (MUST be first to take priority)
+[[redirects]]
+  from = "/api/*"
+  to = "https://lenslink-production.up.railway.app/api/:splat"
+  status = 200
+  force = true
 
-
+# Single Page Application fallback (MUST be last)
 [[redirects]]
   from = "/*"
   to = "/index.html"
