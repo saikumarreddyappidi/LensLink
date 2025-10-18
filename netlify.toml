@@ -1,4 +1,4 @@
-# Re-deploy to clear cache - 2025-10-18
+# Re-deploy with Railway backend fix - 2025-10-18 23:45
 [build]
   # Build command (not needed for static site)
   command = ""
@@ -34,7 +34,7 @@
 # API Proxy to Railway Backend (MUST be first to take priority)
 [[redirects]]
   from = "/api/*"
-  to = "https://lenslink-production.up.railway.app/api/:splat"
+  to = "https://lenslink-backend-production-8ad2.up.railway.app/api/:splat"
   status = 200
   force = true
 
