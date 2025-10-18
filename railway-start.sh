@@ -1,15 +1,27 @@
 #!/bin/bash
-echo "🚂 Railway Build Debug Script"
-echo "Current directory: $(pwd)"
-echo "Files in current directory:"
+echo "� Starting LensLink Backend on Railway..."
+echo "📁 Current directory: $(pwd)"
+echo "📂 Directory contents:"
 ls -la
-echo "Files in backend directory:"
-ls -la backend/
-echo "Node version: $(node --version)"
-echo "NPM version: $(npm --version)"
-echo "Installing backend dependencies..."
-cd backend
-npm install --production
-echo "✅ Dependencies installed successfully"
-echo "Starting server..."
-npm start
+
+echo "🔍 Node version: $(node --version)"
+echo "🔍 NPM version: $(npm --version)"
+
+echo "🔍 Checking backend directory..."
+if [ -d "backend" ]; then
+    echo "✅ Backend directory found"
+    cd backend
+    echo "📁 Backend directory contents:"
+    ls -la
+    
+    echo "📦 Installing dependencies..."
+    npm install --production
+    
+    echo "🎯 Starting server..."
+    exec node server.js
+else
+    echo "❌ Backend directory not found!"
+    echo "📂 Current directory contents:"
+    ls -la
+    exit 1
+fi

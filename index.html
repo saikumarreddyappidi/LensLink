@@ -1344,15 +1344,38 @@
             showLoading('login-form', true);
 
             try {
-                // Fallback to localStorage
-                loadFromLocalStorage();
+                let loginSuccessful = false;
                 
-                const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+                // Try backend login first
+                if (backendAvailable) {
+                    try {
+                        const result = await loginUserWithBackend({ email, password });
+                        if (result.success) {
+                            currentUser = result.user;
+                            localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
+                            localStorage.setItem('authToken', result.token);
+                            loginSuccessful = true;
+                            console.log('✅ Backend login successful');
+                        }
+                    } catch (error) {
+                        console.log('⚠️ Backend login failed, trying localStorage:', error.message);
+                    }
+                }
                 
-                if (user && user.password === password) {
-                    currentUser = user;
-                    localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
+                // Fallback to localStorage if backend fails
+                if (!loginSuccessful) {
+                    loadFromLocalStorage();
+                    const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
                     
+                    if (user && user.password === password) {
+                        currentUser = user;
+                        localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
+                        loginSuccessful = true;
+                        console.log('✅ localStorage login successful');
+                    }
+                }
+                
+                if (loginSuccessful) {
                     showMessage('login-success', 'Login successful! Redirecting...', 'success');
                     
                     setTimeout(() => {
@@ -1408,43 +1431,74 @@
             showLoading('register-form', true);
             
             try {
-                // Check if user already exists
-                loadFromLocalStorage();
-                const existingUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+                let registrationSuccessful = false;
+                let newUser = null;
                 
-                if (existingUser) {
-                    showMessage('register-error', 'An account with this email already exists', 'error');
-                    return;
-                }
-                
-                // Create new user
-                const newUser = {
-                    id: Date.now().toString(),
+                // Create user object
+                const userData = {
                     name,
                     email,
                     password,
                     role,
-                    phone,
-                    createdAt: new Date().toISOString()
+                    phone
                 };
                 
                 // Add photographer-specific fields
                 if (role === 'photographer') {
-                    newUser.location = document.getElementById('register-location')?.value || '';
-                    newUser.experience = document.getElementById('register-experience')?.value || '1';
-                    newUser.hourlyRate = document.getElementById('register-rate')?.value || '100';
-                    newUser.specialties = ['Portrait', 'Wedding']; // Default specialties
-                    newUser.portfolio = [];
+                    userData.location = document.getElementById('register-location')?.value || '';
+                    userData.experience = document.getElementById('register-experience')?.value || '1';
+                    userData.hourlyRate = document.getElementById('register-rate')?.value || '100';
+                    userData.specialties = ['Portrait', 'Wedding']; // Default specialties
+                    userData.portfolio = [];
                 }
                 
-                // Save user
-                allUsers.push(newUser);
-                if (role === 'photographer') {
-                    allPhotographers.push(newUser);
+                // Try backend registration first
+                if (backendAvailable) {
+                    try {
+                        const result = await registerUserWithBackend(userData);
+                        if (result.success) {
+                            newUser = result.user;
+                            localStorage.setItem('authToken', result.token);
+                            registrationSuccessful = true;
+                            console.log('✅ Backend registration successful');
+                        }
+                    } catch (error) {
+                        console.log('⚠️ Backend registration failed, trying localStorage:', error.message);
+                    }
                 }
                 
-                currentUser = newUser;
-                saveToLocalStorage();
+                // Fallback to localStorage if backend fails
+                if (!registrationSuccessful) {
+                    loadFromLocalStorage();
+                    const existingUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+                    
+                    if (existingUser) {
+                        showMessage('register-error', 'An account with this email already exists', 'error');
+                        return;
+                    }
+                    
+                    // Create new user for localStorage
+                    newUser = {
+                        id: Date.now().toString(),
+                        ...userData,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    // Save user
+                    allUsers.push(newUser);
+                    if (role === 'photographer') {
+                        allPhotographers.push(newUser);
+                    }
+                    
+                    saveToLocalStorage();
+                    registrationSuccessful = true;
+                    console.log('✅ localStorage registration successful');
+                }
+                
+                if (registrationSuccessful) {
+                    currentUser = newUser;
+                    localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
+                }
                 
                 showMessage('register-success', 'Registration successful! Redirecting...', 'success');
                 
