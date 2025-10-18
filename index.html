@@ -45,6 +45,12 @@
         .flatpickr-day.disabled {
             color: #94a3b8; /* slate-400 */
         }
+        .booking-step {
+            display: none;
+        }
+        .booking-step.active {
+            display: block;
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -732,13 +738,30 @@
     <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-y-auto">
             <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-orange-400 to-amber-500 text-white p-6 rounded-t-xl">
+            <div class="bg-gradient-to-r from-blue-300 to-indigo-300 text-slate-800 p-6 rounded-t-xl">
                 <div class="flex justify-between items-center">
                     <div>
                         <h3 class="text-2xl font-bold">📸 Schedule Your Photography Session</h3>
-                        <p class="text-orange-100 mt-1">Professional photography to capture your special moments</p>
+                        <p class="text-slate-700 mt-1">Professional photography to capture your special moments</p>
+                        <!-- Step Indicator -->
+                        <div class="flex items-center mt-3 space-x-2">
+                            <div id="step-1-indicator" class="flex items-center">
+                                <div class="w-6 h-6 bg-white text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                                <span class="ml-2 text-sm font-medium">Select Date</span>
+                            </div>
+                            <div class="w-4 h-0.5 bg-white opacity-50"></div>
+                            <div id="step-2-indicator" class="flex items-center opacity-50">
+                                <div class="w-6 h-6 bg-slate-300 text-slate-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                                <span class="ml-2 text-sm font-medium">Choose Time</span>
+                            </div>
+                            <div class="w-4 h-0.5 bg-white opacity-50"></div>
+                            <div id="step-3-indicator" class="flex items-center opacity-50">
+                                <div class="w-6 h-6 bg-slate-300 text-slate-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                                <span class="ml-2 text-sm font-medium">Session Details</span>
+                            </div>
+                        </div>
                     </div>
-                    <button onclick="closeBookingModal()" class="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-full transition-colors">
+                    <button onclick="closeBookingModal()" class="text-slate-700 hover:bg-white hover:bg-opacity-50 p-2 rounded-full transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -747,79 +770,93 @@
             </div>
             
             <div class="p-6">
-                <div class="grid lg:grid-cols-2 gap-8">
-                    <!-- Left Column: Date & Time Selection -->
-                    <div class="space-y-6">
-                        <!-- Calendar Section -->
-                        <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-200 shadow-sm">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 bg-orange-400 rounded-full flex items-center justify-center shadow-md">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                                <h4 class="text-lg font-bold text-orange-800">📅 Select Your Date</h4>
-                            </div>
+                <!-- Step 1: Date Selection -->
+                <div id="booking-step-1" class="booking-step">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">📅 Select Your Preferred Date</h3>
+                        <p class="text-slate-600">Choose the date for your photography session</p>
+                    </div>
+                    <div class="max-w-md mx-auto">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 shadow-sm">
                             <div id="booking-calendar" class="bg-white rounded-lg shadow-sm"></div>
-                        </div>
-                        
-                        <!-- Time Selection -->
-                        <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-6 border border-amber-200 shadow-sm">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center shadow-md">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                                <h4 class="text-lg font-bold text-amber-800">⏰ Choose Your Time</h4>
+                            <div class="mt-4 text-center">
+                                <button type="button" id="continue-to-time" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Continue to Time Selection →
+                                </button>
                             </div>
-                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Time Selection -->
+                <div id="booking-step-2" class="booking-step hidden">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">⏰ Choose Your Time</h3>
+                        <p class="text-slate-600">Select your preferred time slot</p>
+                    </div>
+                    <div class="max-w-lg mx-auto">
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200 shadow-sm">
                             <!-- Time Format Selection -->
                             <div class="mb-4">
-                                <label class="block text-sm font-semibold text-amber-700 mb-2">Time Format</label>
-                                <div class="flex gap-3">
-                                    <label class="flex items-center space-x-2 bg-white p-3 rounded-lg border-2 border-amber-200 hover:border-amber-400 cursor-pointer transition-colors shadow-sm">
-                                        <input type="radio" name="time-format" value="12" checked class="text-amber-500 focus:ring-amber-400">
-                                        <span class="font-medium text-amber-800">12 Hour (AM/PM)</span>
+                                <label class="block text-sm font-semibold text-green-700 mb-2">Time Format</label>
+                                <div class="flex gap-3 justify-center">
+                                    <label class="flex items-center space-x-2 bg-white p-3 rounded-lg border-2 border-green-200 hover:border-green-400 cursor-pointer transition-colors shadow-sm">
+                                        <input type="radio" name="time-format" value="12" checked class="text-green-500 focus:ring-green-400">
+                                        <span class="font-medium text-green-800">12 Hour (AM/PM)</span>
                                     </label>
-                                    <label class="flex items-center space-x-2 bg-white p-3 rounded-lg border-2 border-amber-200 hover:border-amber-400 cursor-pointer transition-colors shadow-sm">
-                                        <input type="radio" name="time-format" value="24" class="text-amber-500 focus:ring-amber-400">
-                                        <span class="font-medium text-amber-800">24 Hour</span>
+                                    <label class="flex items-center space-x-2 bg-white p-3 rounded-lg border-2 border-green-200 hover:border-green-400 cursor-pointer transition-colors shadow-sm">
+                                        <input type="radio" name="time-format" value="24" class="text-green-500 focus:ring-green-400">
+                                        <span class="font-medium text-green-800">24 Hour</span>
                                     </label>
                                 </div>
                             </div>
                             
                             <!-- Time Selection -->
-                            <div class="grid grid-cols-3 gap-2" id="time-slots">
-                                <button type="button" class="time-slot-btn bg-white border-2 border-amber-200 text-amber-800 p-3 rounded-lg hover:bg-amber-100 hover:border-amber-400 transition-all font-medium shadow-sm" data-time="06:00">6:00 AM</button>
-                                <button type="button" class="time-slot-btn bg-white border-2 border-amber-200 text-amber-800 p-3 rounded-lg hover:bg-amber-100 hover:border-amber-400 transition-all font-medium shadow-sm" data-time="08:00">8:00 AM</button>
-                                <button type="button" class="time-slot-btn bg-white border-2 border-amber-200 text-amber-800 p-3 rounded-lg hover:bg-amber-100 hover:border-amber-400 transition-all font-medium shadow-sm" data-time="10:00">10:00 AM</button>
-                                <button type="button" class="time-slot-btn bg-white border-2 border-amber-200 text-amber-800 p-3 rounded-lg hover:bg-amber-100 hover:border-amber-400 transition-all font-medium shadow-sm" data-time="12:00">12:00 PM</button>
-                                <button type="button" class="time-slot-btn bg-white border-2 border-amber-200 text-amber-800 p-3 rounded-lg hover:bg-amber-100 hover:border-amber-400 transition-all font-medium shadow-sm" data-time="14:00">2:00 PM</button>
-                                <button type="button" class="time-slot-btn bg-white border-2 border-amber-200 text-amber-800 p-3 rounded-lg hover:bg-amber-100 hover:border-amber-400 transition-all font-medium shadow-sm" data-time="16:00">4:00 PM</button>
-                                <button type="button" class="time-slot-btn bg-white border-2 border-amber-200 text-amber-800 p-3 rounded-lg hover:bg-amber-100 hover:border-amber-400 transition-all font-medium shadow-sm" data-time="18:00">6:00 PM</button>
-                                <button type="button" class="time-slot-btn bg-white border-2 border-amber-200 text-amber-800 p-3 rounded-lg hover:bg-amber-100 hover:border-amber-400 transition-all font-medium shadow-sm" data-time="20:00">8:00 PM</button>
+                            <div class="grid grid-cols-3 gap-2 mb-4" id="time-slots">
+                                <button type="button" class="time-slot-btn bg-white border-2 border-green-200 text-green-800 p-3 rounded-lg hover:bg-green-100 hover:border-green-400 transition-all font-medium shadow-sm" data-time="06:00">6:00 AM</button>
+                                <button type="button" class="time-slot-btn bg-white border-2 border-green-200 text-green-800 p-3 rounded-lg hover:bg-green-100 hover:border-green-400 transition-all font-medium shadow-sm" data-time="08:00">8:00 AM</button>
+                                <button type="button" class="time-slot-btn bg-white border-2 border-green-200 text-green-800 p-3 rounded-lg hover:bg-green-100 hover:border-green-400 transition-all font-medium shadow-sm" data-time="10:00">10:00 AM</button>
+                                <button type="button" class="time-slot-btn bg-white border-2 border-green-200 text-green-800 p-3 rounded-lg hover:bg-green-100 hover:border-green-400 transition-all font-medium shadow-sm" data-time="12:00">12:00 PM</button>
+                                <button type="button" class="time-slot-btn bg-white border-2 border-green-200 text-green-800 p-3 rounded-lg hover:bg-green-100 hover:border-green-400 transition-all font-medium shadow-sm" data-time="14:00">2:00 PM</button>
+                                <button type="button" class="time-slot-btn bg-white border-2 border-green-200 text-green-800 p-3 rounded-lg hover:bg-green-100 hover:border-green-400 transition-all font-medium shadow-sm" data-time="16:00">4:00 PM</button>
+                                <button type="button" class="time-slot-btn bg-white border-2 border-green-200 text-green-800 p-3 rounded-lg hover:bg-green-100 hover:border-green-400 transition-all font-medium shadow-sm" data-time="18:00">6:00 PM</button>
+                                <button type="button" class="time-slot-btn bg-white border-2 border-green-200 text-green-800 p-3 rounded-lg hover:bg-green-100 hover:border-green-400 transition-all font-medium shadow-sm" data-time="20:00">8:00 PM</button>
+                            </div>
+                            
+                            <div class="flex gap-3 justify-center">
+                                <button type="button" id="back-to-date" class="bg-slate-500 hover:bg-slate-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                    ← Back to Date
+                                </button>
+                                <button type="button" id="continue-to-details" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    Continue to Details →
+                                </button>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Right Column: Session Details -->
-                    <div class="space-y-6">
+                </div>
+
+                <!-- Step 3: Session Details -->
+                <div id="booking-step-3" class="booking-step hidden">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">📝 Session Details</h3>
+                        <p class="text-slate-600">Tell us about your photography session</p>
+                    </div>
+                    <div class="max-w-lg mx-auto space-y-6">
                         <form id="booking-form" class="space-y-6">
                             <input type="hidden" id="selected-date">
                             <input type="hidden" id="selected-time">
                             
                             <!-- Session Type -->
-                            <div class="bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-6 border border-rose-200 shadow-sm">
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200 shadow-sm">
                                 <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 bg-rose-400 rounded-full flex items-center justify-center shadow-md">
+                                    <div class="w-10 h-10 bg-purple-400 rounded-full flex items-center justify-center shadow-md">
                                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
                                     </div>
-                                    <h4 class="text-lg font-bold text-rose-800">📷 Session Type</h4>
+                                    <h4 class="text-lg font-bold text-purple-800">📷 Session Type</h4>
                                 </div>
-                                <select id="session-type" class="w-full p-4 border-2 border-rose-200 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-rose-400 bg-white font-medium shadow-sm">
+                                <select id="session-type" class="w-full p-4 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 bg-white font-medium shadow-sm">
                                     <option value="portrait">🧑‍🤝‍🧑 Portrait Session</option>
                                     <option value="wedding">💒 Wedding Photography</option>
                                     <option value="event">🎉 Event Photography</option>
@@ -832,32 +869,35 @@
                             </div>
                             
                             <!-- Special Requirements -->
-                            <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border border-orange-200 shadow-sm">
+                            <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200 shadow-sm">
                                 <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center shadow-md">
+                                    <div class="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center shadow-md">
                                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                         </svg>
                                     </div>
-                                    <h4 class="text-lg font-bold text-orange-800">✨ Share Your Vision</h4>
+                                    <h4 class="text-lg font-bold text-amber-800">✨ Share Your Vision</h4>
                                 </div>
                                 <textarea id="special-requirements" 
-                                         class="w-full p-4 border-2 border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 bg-white resize-none font-medium shadow-sm" 
+                                         class="w-full p-4 border-2 border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-amber-400 bg-white resize-none font-medium shadow-sm" 
                                          rows="4" 
                                          placeholder="✍️ Tell us about your photography vision! Any specific shots, locations, themes, or special requests..."></textarea>
-                                <p class="text-sm text-orange-600 mt-2">💡 Example: "I'd like outdoor shots during golden hour, candid family moments, and some formal poses by the lake."</p>
+                                <p class="text-sm text-amber-600 mt-2">💡 Example: "I'd like outdoor shots during golden hour, candid family moments, and some formal poses by the lake."</p>
                             </div>
                             
                             <!-- Action Buttons -->
                             <div class="flex gap-4 pt-4">
-                                <button type="button" onclick="closeBookingModal()" 
-                                        class="flex-1 bg-slate-500 hover:bg-slate-600 text-white py-4 rounded-lg font-semibold transition-colors shadow-lg">
-                                    ❌ Cancel
+                                <button type="button" id="back-to-time" class="flex-1 bg-slate-500 hover:bg-slate-600 text-white py-4 rounded-lg font-semibold transition-colors shadow-lg">
+                                    ← Back to Time
                                 </button>
                                 <button type="submit" 
-                                        class="flex-1 bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white py-4 rounded-lg font-bold transition-all shadow-lg transform hover:scale-105">
+                                        class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white py-4 rounded-lg font-bold transition-all shadow-lg transform hover:scale-105">
                                     ✅ Book Session
                                 </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                             </div>
                         </form>
                     </div>
@@ -3230,29 +3270,139 @@
         // Booking Modal Functions
         function openBookingModal(photographerId) {
             const modal = document.getElementById('booking-modal');
-            const today = new Date().toISOString().split('T')[0];
-            const selectedDateInput = document.getElementById('selected-date');
-            if (selectedDateInput) {
-                selectedDateInput.value = today;
-            }
+            
+            // Clear previous booking data to prevent data persistence
+            resetBookingForm();
             
             // Store photographer ID for booking
             window.currentBookingPhotographer = photographerId;
             
             modal.classList.remove('hidden');
             
+            // Start with step 1
+            showBookingStep(1);
+            
             // Initialize enhanced calendar with 3 years range
             initializeEnhancedBookingCalendar();
             
-            // Initialize time selection
-            initializeTimeSelection();
+            // Initialize step navigation
+            initializeStepNavigation();
+        }
+
+        function resetBookingForm() {
+            // Clear all form inputs
+            const selectedDateInput = document.getElementById('selected-date');
+            const selectedTimeInput = document.getElementById('selected-time');
+            const sessionTypeSelect = document.getElementById('session-type');
+            const requirementsTextarea = document.getElementById('special-requirements');
+            
+            if (selectedDateInput) selectedDateInput.value = '';
+            if (selectedTimeInput) selectedTimeInput.value = '';
+            if (sessionTypeSelect) sessionTypeSelect.selectedIndex = 0;
+            if (requirementsTextarea) requirementsTextarea.value = '';
+            
+            // Reset time slot selections
+            document.querySelectorAll('.time-slot-btn').forEach(btn => {
+                btn.classList.remove('selected', 'bg-green-500', 'text-white', 'border-green-500');
+                btn.classList.add('bg-white', 'border-green-200', 'text-green-800');
+            });
+        }
+
+        function showBookingStep(stepNumber) {
+            // Hide all steps
+            document.querySelectorAll('.booking-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show current step
+            const currentStep = document.getElementById(`booking-step-${stepNumber}`);
+            if (currentStep) {
+                currentStep.classList.add('active');
+            }
+            
+            // Update step indicators
+            updateStepIndicators(stepNumber);
+        }
+
+        function updateStepIndicators(currentStep) {
+            for (let i = 1; i <= 3; i++) {
+                const indicator = document.getElementById(`step-${i}-indicator`);
+                if (indicator) {
+                    if (i === currentStep) {
+                        indicator.classList.remove('opacity-50');
+                        const circle = indicator.querySelector('div');
+                        circle.classList.remove('bg-slate-300', 'text-slate-600');
+                        circle.classList.add('bg-white', 'text-blue-600');
+                    } else if (i < currentStep) {
+                        indicator.classList.remove('opacity-50');
+                        const circle = indicator.querySelector('div');
+                        circle.classList.remove('bg-slate-300', 'text-slate-600', 'bg-white', 'text-blue-600');
+                        circle.classList.add('bg-green-500', 'text-white');
+                        circle.innerHTML = '✓';
+                    } else {
+                        indicator.classList.add('opacity-50');
+                        const circle = indicator.querySelector('div');
+                        circle.classList.remove('bg-white', 'text-blue-600', 'bg-green-500', 'text-white');
+                        circle.classList.add('bg-slate-300', 'text-slate-600');
+                        circle.innerHTML = i.toString();
+                    }
+                }
+            }
+        }
+
+        function initializeStepNavigation() {
+            // Continue to time button
+            const continueToTimeBtn = document.getElementById('continue-to-time');
+            if (continueToTimeBtn) {
+                continueToTimeBtn.addEventListener('click', () => {
+                    const selectedDate = document.getElementById('selected-date').value;
+                    if (selectedDate) {
+                        showBookingStep(2);
+                        initializeTimeSelection();
+                    }
+                });
+            }
+
+            // Back to date button
+            const backToDateBtn = document.getElementById('back-to-date');
+            if (backToDateBtn) {
+                backToDateBtn.addEventListener('click', () => {
+                    showBookingStep(1);
+                });
+            }
+
+            // Continue to details button
+            const continueToDetailsBtn = document.getElementById('continue-to-details');
+            if (continueToDetailsBtn) {
+                continueToDetailsBtn.addEventListener('click', () => {
+                    const selectedTime = document.getElementById('selected-time').value;
+                    if (selectedTime) {
+                        showBookingStep(3);
+                    }
+                });
+            }
+
+            // Back to time button in step 3
+            const backToTimeBtn = document.getElementById('back-to-time');
+            if (backToTimeBtn) {
+                backToTimeBtn.addEventListener('click', () => {
+                    showBookingStep(2);
+                });
+            }
         }
 
         // Make globally accessible
         window.closeBookingModal = function() {
             const modal = document.getElementById('booking-modal');
             modal.classList.add('hidden');
+            
+            // Reset to step 1 for next booking
+            showBookingStep(1);
+            resetBookingForm();
         }
+
+        // Make openBookingModal globally accessible
+        window.openBookingModal = openBookingModal;
 
         function initializeEnhancedBookingCalendar() {
             const calendarDiv = document.getElementById('booking-calendar');
@@ -3338,11 +3488,11 @@
                     if (isPast) {
                         buttonClass += 'text-slate-300 cursor-not-allowed bg-slate-50';
                     } else if (isSelected) {
-                        buttonClass += 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-xl transform scale-110 ring-2 ring-orange-200';
+                        buttonClass += 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-xl transform scale-110 ring-2 ring-blue-200';
                     } else if (isToday) {
-                        buttonClass += 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 font-bold hover:from-orange-200 hover:to-amber-200 border-2 border-orange-300';
+                        buttonClass += 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 font-bold hover:from-blue-200 hover:to-indigo-200 border-2 border-blue-300';
                     } else {
-                        buttonClass += 'text-slate-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-orange-600 cursor-pointer hover:scale-105';
+                        buttonClass += 'text-slate-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-600 cursor-pointer hover:scale-105';
                     }
                     
                     calendarHTML += `
@@ -3358,7 +3508,7 @@
                 calendarHTML += `
                             </div>
                         </div>
-                        ${selectedDate ? `<div class="px-4 pb-4"><div class="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-lg p-3 text-sm font-semibold text-orange-800">📅 Selected: ${new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div></div>` : ''}
+                        ${selectedDate ? `<div class="px-4 pb-4"><div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-3 text-sm font-semibold text-blue-800">📅 Selected: ${new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div></div>` : ''}
                     </div>
                 `;
                 
@@ -3396,6 +3546,12 @@
                 const selectedDateInput = document.getElementById('selected-date') || document.getElementById('booking-date');
                 if (selectedDateInput) {
                     selectedDateInput.value = dateStr;
+                }
+                
+                // Enable continue button
+                const continueBtn = document.getElementById('continue-to-time');
+                if (continueBtn) {
+                    continueBtn.disabled = false;
                 }
                 
                 // Re-render calendar to update selection
@@ -3511,6 +3667,12 @@
                     const timeValue = this.getAttribute('data-time');
                     selectedTimeInput.value = timeValue;
                     
+                    // Enable continue to details button
+                    const continueBtn = document.getElementById('continue-to-details');
+                    if (continueBtn) {
+                        continueBtn.disabled = false;
+                    }
+                    
                     console.log('Time selected:', timeValue);
                 });
             });
@@ -3560,7 +3722,6 @@
                     const date = document.getElementById('selected-date').value;
                     const time = document.getElementById('selected-time').value;
                     const sessionType = document.getElementById('session-type').value;
-                    const duration = document.getElementById('session-duration').value;
                     const requirements = document.getElementById('special-requirements').value;
                     
                     const photographer = allPhotographers.find(p => p.id === window.currentBookingPhotographer);
@@ -3580,11 +3741,10 @@
                             date: date,
                             time: time,
                             sessionType: sessionType,
-                            duration: duration,
                             requirements: requirements,
                             status: 'pending',
                             createdAt: new Date().toISOString(),
-                            totalCost: photographer.hourlyRate * parseInt(duration)
+                            totalCost: photographer.hourlyRate || 100 // Default rate if not specified
                         };
                         
                         // Store booking in localStorage
