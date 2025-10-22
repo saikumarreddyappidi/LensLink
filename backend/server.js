@@ -32,6 +32,7 @@ if (!MONGODB_URI) {
 }
 
 console.log('🔗 Using MongoDB URI:', MONGODB_URI.substring(0, 50) + '...');
+console.log('🚀 LensLink Backend v3.1.0 - Production Ready');
 
 const corsOptions = {
     origin: [
