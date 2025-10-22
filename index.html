@@ -535,9 +535,10 @@
                             </div>
                         </div>
 
-                        <button type="submit" onclick="if(window.handleRegisterBackup) { window.handleRegisterBackup(event); return false; }" class="w-full bg-slate-800 text-white font-bold py-3 rounded-md hover:bg-slate-700">Create Account</button>
+                        <button type="submit" class="w-full bg-slate-800 text-white font-bold py-3 rounded-md hover:bg-slate-700">Create Account</button>
                         <div id="register-error" class="hidden text-red-600 text-sm text-center"></div>
                         <div id="register-success" class="hidden text-green-600 text-sm text-center"></div>
+                        <div id="register-info" class="hidden text-blue-600 text-sm text-center"></div>
                     </form>
                 </div>
             </div>
@@ -1509,13 +1510,8 @@
                         console.log('✅ Backend registration successful - Account will sync across devices');
                         showMessage('register-success', '✅ Account created successfully! Your data is saved to the cloud database and will sync across all devices.', 'success');
                         
-                        // Also save to localStorage for offline access
-                        loadFromLocalStorage();
-                        allUsers.push(newUser);
-                        if (role === 'photographer') {
-                            allPhotographers.push(newUser);
-                        }
-                        saveToLocalStorage();
+                        // DO NOT save to localStorage - rely ONLY on MongoDB for cross-device sync
+                        // Removed localStorage saving to prevent device-specific data storage
                     }
                 } catch (error) {
                     console.error('❌ Backend registration failed:', error.message);
@@ -1608,7 +1604,9 @@
                 mobileMenuBtn: !!mobileMenuBtnTest
             });
             
-            // Add emergency fix for broken registration function
+            // DISABLED: Emergency backup registration function uses localStorage fallback
+            // This causes cross-device sync issues - ALL registrations MUST go through backend
+            /*
             window.handleRegisterBackup = function(e) {
                 e.preventDefault();
                 console.log('🆘 Using backup registration function');
@@ -1680,6 +1678,7 @@
                 updateUI();
                 showPage(role === 'photographer' ? 'photographer-dashboard-page' : 'find-photographers');
             };
+            */
             
             // Add emergency backup for login function
             window.handleLoginBackup = function(e) {
@@ -1810,12 +1809,8 @@
                 // Register Form Handler - Ensure it's always attached  
                 console.log('🔗 Attaching register form handler');
                 registerForm.removeEventListener('submit', handleRegister); // Remove any existing listener
-                try {
-                    registerForm.addEventListener('submit', handleRegister);
-                } catch (error) {
-                    console.warn('⚠️ Main register handler failed, using backup');
-                    registerForm.addEventListener('submit', handleRegisterBackup);
-                }
+                registerForm.addEventListener('submit', handleRegister);
+                console.log('✅ Register form handler attached - NO localStorage fallback for cross-device sync');
                 
                 console.log('✅ Login/Register forms initialized successfully');
             } else {
