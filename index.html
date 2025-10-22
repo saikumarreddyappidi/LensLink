@@ -1039,16 +1039,30 @@
         // Test backend connection
         async function testBackendConnection() {
             try {
-                const response = await fetch(`${API_BASE_URL}/health`);
+                console.log('🔄 Testing backend connection for cross-device sync...');
+                const response = await fetch(`${API_BASE_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    // Add timeout for faster fallback
+                    signal: AbortSignal.timeout(10000) // 10 second timeout
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const result = await response.json();
-                console.log('✅ Railway Backend Connected:', result);
+                console.log('✅ Backend Connected - Cross-device sync enabled:', result);
                 backendAvailable = true;
                 
                 // Update UI to show backend status
                 updateBackendStatus(true);
                 return true;
             } catch (error) {
-                console.warn('⚠️ Railway Backend unavailable, using localStorage fallback');
+                console.warn('⚠️ Backend unavailable - Cross-device sync disabled:', error.message);
+                console.log('📱 Accounts will only work on this device until backend is available');
                 backendAvailable = false;
                 updateBackendStatus(false);
                 return false;
@@ -1346,20 +1360,29 @@
             try {
                 let loginSuccessful = false;
                 
-                // Try backend login first
-                if (backendAvailable) {
-                    try {
-                        const result = await loginUserWithBackend({ email, password });
-                        if (result.success) {
-                            currentUser = result.user;
-                            localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
-                            localStorage.setItem('authToken', result.token);
-                            loginSuccessful = true;
-                            console.log('✅ Backend login successful');
+                // ALWAYS try backend first (force backend usage for cross-device sync)
+                console.log('🔄 Attempting backend login for cross-device sync...');
+                try {
+                    const result = await loginUserWithBackend({ email, password });
+                    if (result.success) {
+                        currentUser = result.user;
+                        localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
+                        localStorage.setItem('authToken', result.token);
+                        loginSuccessful = true;
+                        console.log('✅ Backend login successful - Account synced across devices');
+                        
+                        // Also update localStorage with backend data for offline fallback
+                        loadFromLocalStorage();
+                        const existingUserIndex = allUsers.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+                        if (existingUserIndex >= 0) {
+                            allUsers[existingUserIndex] = result.user;
+                        } else {
+                            allUsers.push(result.user);
                         }
-                    } catch (error) {
-                        console.log('⚠️ Backend login failed, trying localStorage:', error.message);
+                        saveToLocalStorage();
                     }
+                } catch (error) {
+                    console.log('⚠️ Backend login failed, trying localStorage:', error.message);
                 }
                 
                 // Fallback to localStorage if backend fails
@@ -1452,19 +1475,26 @@
                     userData.portfolio = [];
                 }
                 
-                // Try backend registration first
-                if (backendAvailable) {
-                    try {
-                        const result = await registerUserWithBackend(userData);
-                        if (result.success) {
-                            newUser = result.user;
-                            localStorage.setItem('authToken', result.token);
-                            registrationSuccessful = true;
-                            console.log('✅ Backend registration successful');
+                // ALWAYS try backend first (force backend usage for cross-device sync)
+                console.log('🔄 Attempting backend registration for cross-device sync...');
+                try {
+                    const result = await registerUserWithBackend(userData);
+                    if (result.success) {
+                        newUser = result.user;
+                        localStorage.setItem('authToken', result.token);
+                        registrationSuccessful = true;
+                        console.log('✅ Backend registration successful - Account will sync across devices');
+                        
+                        // Also save to localStorage for offline fallback
+                        loadFromLocalStorage();
+                        allUsers.push(newUser);
+                        if (role === 'photographer') {
+                            allPhotographers.push(newUser);
                         }
-                    } catch (error) {
-                        console.log('⚠️ Backend registration failed, trying localStorage:', error.message);
+                        saveToLocalStorage();
                     }
+                } catch (error) {
+                    console.log('⚠️ Backend registration failed, using localStorage:', error.message);
                 }
                 
                 // Fallback to localStorage if backend fails
@@ -1526,11 +1556,23 @@
         window.handleLogin = handleLogin;
         window.handleRegister = handleRegister;
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 DOM Content Loaded - Initializing LensLink');
             
-            // Test backend connection first
-            testBackendConnection();
+            // Test backend connection with retry for cross-device sync
+            await testBackendConnection();
+            
+            // If backend failed, retry after 3 seconds
+            if (!backendAvailable) {
+                console.log('🔄 Retrying backend connection in 3 seconds...');
+                setTimeout(async () => {
+                    await testBackendConnection();
+                    if (!backendAvailable) {
+                        console.log('🔄 Final retry in 10 seconds...');
+                        setTimeout(testBackendConnection, 10000);
+                    }
+                }, 3000);
+            }
             
             // Load data from localStorage first
             loadFromLocalStorage();
