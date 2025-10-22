@@ -76,17 +76,27 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:8080/api';
+        // Use live Railway backend when on live domain, localhost for local development
+        const API_BASE = window.location.hostname === 'lenslink.live' 
+            ? '/api'  // This will use Netlify proxy to Railway
+            : 'https://lenslink-production.up.railway.app/api';
         
         async function loadDashboardData() {
+            console.log('Loading dashboard data from:', API_BASE);
             try {
                 // Load users
+                console.log('Fetching users...');
                 const usersResponse = await fetch(`${API_BASE}/users`);
+                console.log('Users response status:', usersResponse.status);
                 const usersData = await usersResponse.json();
+                console.log('Users data:', usersData);
                 
                 // Load photographers
+                console.log('Fetching photographers...');
                 const photographersResponse = await fetch(`${API_BASE}/photographers`);
+                console.log('Photographers response status:', photographersResponse.status);
                 const photographersData = await photographersResponse.json();
+                console.log('Photographers data:', photographersData);
                 
                 if (usersData.success) {
                     document.getElementById('userCount').textContent = usersData.data.length;
@@ -94,8 +104,9 @@
                 }
                 
                 if (photographersData.success) {
-                    document.getElementById('photographerCount').textContent = photographersData.data.length;
-                    displayPhotographers(photographersData.data);
+                    const photographers = photographersData.data.photographers || photographersData.data;
+                    document.getElementById('photographerCount').textContent = photographers.length;
+                    displayPhotographers(photographers);
                 }
                 
                 document.getElementById('bookingCount').textContent = '0'; // Placeholder
@@ -144,10 +155,10 @@
                         ${photographer.businessName || 'N/A'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${photographer.userData ? photographer.userData.email : 'N/A'}
+                        ${photographer.user ? photographer.user.email : 'N/A'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${photographer.specialties ? photographer.specialties.join(', ') : 'None'}
+                        ${photographer.specialties ? (Array.isArray(photographer.specialties) ? photographer.specialties.join(', ') : photographer.specialties) : 'None'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         ${new Date(photographer.createdAt).toLocaleDateString()}
