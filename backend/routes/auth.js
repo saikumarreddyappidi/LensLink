@@ -25,7 +25,7 @@ const validateRegistration = [
     .withMessage('Role must be either client or photographer'),
   body('phone')
     .optional()
-    .isMobilePhone()
+    .matches(/^[\+]?[1-9][\d]{0,15}$/)
     .withMessage('Please provide a valid phone number')
 ];
 
