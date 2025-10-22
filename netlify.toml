@@ -1,10 +1,13 @@
-# Database connection fixed - Backend API working - 2025-10-22 05:10
+# Database connection fixed - Backend API working - 2025-10-22 05:15
 [build]
-  # Build command (not needed for static site)
-  command = ""
+  # Static site - no build needed
+  command = "echo 'Static site deployment'"
   
   # Directory to publish (root directory)
   publish = "."
+  
+  # Ignore backend and node_modules for faster deployment
+  ignore = "backend/**,node_modules/**"
 
 [build.environment]
   # Node.js version (if needed)

@@ -1,28 +1,17 @@
 {
-  "name": "lenslink-app",
+  "name": "lenslink-frontend",
   "version": "1.0.0",
-  "description": "LensLink Photography Booking Platform",
-  "main": "backend/server.js",
+  "description": "LensLink Photography Booking Platform - Frontend",
+  "private": true,
   "scripts": {
-    "start": "cd backend && node server.js",
-    "dev": "cd backend && nodemon server.js",
-    "install-backend": "cd backend && npm install",
-    "build": "cd backend && npm install",
-    "postinstall": "cd backend && npm install"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "build": "echo 'Static site - no build needed'",
+    "start": "echo 'Static site served by Netlify'"
   },
   "keywords": [
     "photography",
     "booking",
-    "railway"
+    "static-site"
   ],
   "author": "SaiKumarReddy",
-  "license": "MIT",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "mongodb": "^6.20.0"
-  }
+  "license": "MIT"
 }
