@@ -426,6 +426,18 @@
                                 <label for="register-phone" class="block text-sm font-medium text-slate-700">Phone Number (Optional)</label>
                                 <input type="tel" id="register-phone" class="mt-1 block w-full p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent">
                             </div>
+                            
+                            <!-- Cross-Device Sync Notice -->
+                            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <p class="text-sm text-blue-700">
+                                        <strong>Cross-Device Sync:</strong> Your account will be saved to our cloud database and accessible from any device with internet connection.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Photographer Additional Info (Hidden by default) -->
@@ -1475,8 +1487,19 @@
                     userData.portfolio = [];
                 }
                 
-                // ALWAYS try backend first (force backend usage for cross-device sync)
+                // FORCE backend registration ONLY - no localStorage fallback for cross-device sync
                 console.log('🔄 Attempting backend registration for cross-device sync...');
+                showMessage('register-info', '📡 Connecting to server... Please wait.', 'info');
+                
+                // Test backend connection first
+                await testBackendConnection();
+                
+                if (!backendAvailable) {
+                    showMessage('register-error', '❌ Cannot connect to server. Please check your internet connection and try again.', 'error');
+                    console.error('❌ Backend not available for registration');
+                    return;
+                }
+                
                 try {
                     const result = await registerUserWithBackend(userData);
                     if (result.success) {
@@ -1484,8 +1507,9 @@
                         localStorage.setItem('authToken', result.token);
                         registrationSuccessful = true;
                         console.log('✅ Backend registration successful - Account will sync across devices');
+                        showMessage('register-success', '✅ Account created successfully! Your data is saved to the cloud database and will sync across all devices.', 'success');
                         
-                        // Also save to localStorage for offline fallback
+                        // Also save to localStorage for offline access
                         loadFromLocalStorage();
                         allUsers.push(newUser);
                         if (role === 'photographer') {
@@ -1494,36 +1518,17 @@
                         saveToLocalStorage();
                     }
                 } catch (error) {
-                    console.log('⚠️ Backend registration failed, using localStorage:', error.message);
+                    console.error('❌ Backend registration failed:', error.message);
+                    if (error.message.includes('already exists')) {
+                        showMessage('register-error', '❌ An account with this email already exists.', 'error');
+                    } else {
+                        showMessage('register-error', '❌ Registration failed. Please try again or contact support if the problem persists.', 'error');
+                    }
+                    return;
                 }
                 
-                // Fallback to localStorage if backend fails
-                if (!registrationSuccessful) {
-                    loadFromLocalStorage();
-                    const existingUser = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-                    
-                    if (existingUser) {
-                        showMessage('register-error', 'An account with this email already exists', 'error');
-                        return;
-                    }
-                    
-                    // Create new user for localStorage
-                    newUser = {
-                        id: Date.now().toString(),
-                        ...userData,
-                        createdAt: new Date().toISOString()
-                    };
-                    
-                    // Save user
-                    allUsers.push(newUser);
-                    if (role === 'photographer') {
-                        allPhotographers.push(newUser);
-                    }
-                    
-                    saveToLocalStorage();
-                    registrationSuccessful = true;
-                    console.log('✅ localStorage registration successful');
-                }
+                // NO FALLBACK - Force backend usage for cross-device sync
+                // Removed localStorage fallback to ensure all accounts go to MongoDB database
                 
                 if (registrationSuccessful) {
                     currentUser = newUser;
@@ -3282,7 +3287,13 @@
                 }
                 
                 element.textContent = message;
-                element.className = `text-sm text-center ${type === 'error' || type === 'warning' ? 'text-red-600' : 'text-green-600'}`;
+                let colorClass = 'text-green-600'; // default for success
+                if (type === 'error' || type === 'warning') {
+                    colorClass = 'text-red-600';
+                } else if (type === 'info') {
+                    colorClass = 'text-blue-600';
+                }
+                element.className = `text-sm text-center ${colorClass}`;
                 element.classList.remove('hidden');
                 
                 console.log(`📢 Message shown (${type}):`, message);
