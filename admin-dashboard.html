@@ -80,25 +80,25 @@
         
         async function loadDashboardData() {
             try {
-                // Load users
-                const usersResponse = await fetch(`${API_BASE}/users`);
-                const usersData = await usersResponse.json();
+                // Load health/stats data
+                const healthResponse = await fetch(`${API_BASE}/health`);
+                const healthData = await healthResponse.json();
                 
                 // Load photographers
                 const photographersResponse = await fetch(`${API_BASE}/photographers`);
                 const photographersData = await photographersResponse.json();
                 
-                if (usersData.success) {
-                    document.getElementById('userCount').textContent = usersData.data.length;
-                    displayUsers(usersData.data);
+                if (healthData.status === 'OK' && healthData.dataStats) {
+                    document.getElementById('userCount').textContent = healthData.dataStats.users || 0;
+                    document.getElementById('photographerCount').textContent = healthData.dataStats.photographers || 0;
+                    document.getElementById('bookingCount').textContent = healthData.dataStats.bookings || 0;
                 }
                 
                 if (photographersData.success) {
-                    document.getElementById('photographerCount').textContent = photographersData.data.length;
-                    displayPhotographers(photographersData.data);
+                    displayPhotographers(photographersData.data.photographers);
+                    // Hide users table since we can't access user details without auth
+                    displayUsersMessage();
                 }
-                
-                document.getElementById('bookingCount').textContent = '0'; // Placeholder
                 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
@@ -108,32 +108,24 @@
             }
         }
         
-        function displayUsers(users) {
+        function displayUsersMessage() {
             const tbody = document.getElementById('usersTableBody');
-            if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No users found</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = users.map(user => `
+            tbody.innerHTML = `
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.role === 'photographer' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
-                            ${user.role}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${new Date(user.createdAt).toLocaleDateString()}
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                        <div class="text-sm">
+                            👥 <strong>User Details Protected</strong><br>
+                            User details require authentication for privacy.<br>
+                            <span class="text-xs text-gray-400">Total count displayed above</span>
+                        </div>
                     </td>
                 </tr>
-            `).join('');
+            `;
         }
         
         function displayPhotographers(photographers) {
             const tbody = document.getElementById('photographersTableBody');
-            if (photographers.length === 0) {
+            if (!photographers || photographers.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No photographers found</td></tr>';
                 return;
             }
@@ -144,10 +136,10 @@
                         ${photographer.businessName || 'N/A'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${photographer.userData ? photographer.userData.email : 'N/A'}
+                        ${photographer.userData ? photographer.userData.email : (photographer.email || 'N/A')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${photographer.specialties ? photographer.specialties.join(', ') : 'None'}
+                        ${photographer.specialties && photographer.specialties.length > 0 ? photographer.specialties.join(', ') : 'General Photography'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         ${new Date(photographer.createdAt).toLocaleDateString()}
