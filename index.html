@@ -1556,7 +1556,7 @@
         window.handleLogin = handleLogin;
         window.handleRegister = handleRegister;
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 DOM Content Loaded - Initializing LensLink');
             
             // Test backend connection with retry for cross-device sync
@@ -1581,9 +1581,27 @@
             initializeSampleData();
             
             // Initialize the app
-            initializeApp();
+            try {
+                await initializeApp();
+                console.log('✅ App initialized successfully');
+            } catch (error) {
+                console.error('❌ App initialization failed:', error);
+            }
             
             console.log('📊 Loaded users:', allUsers.length, 'photographers:', allPhotographers.length);
+            
+            // Debug button functionality
+            console.log('🔍 Checking button functionality...');
+            console.log('📍 Navigation links found:', document.querySelectorAll('a[data-page]').length);
+            
+            // Test key buttons
+            const loginBtnTest = document.querySelector('a[data-page="login"]');
+            const mobileMenuBtnTest = document.getElementById('mobile-menu-button');
+            
+            console.log('🔘 Key buttons status:', {
+                loginBtn: !!loginBtnTest,
+                mobileMenuBtn: !!mobileMenuBtnTest
+            });
             
             // Add emergency fix for broken registration function
             window.handleRegisterBackup = function(e) {
