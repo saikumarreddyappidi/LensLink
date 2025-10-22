@@ -20,10 +20,18 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-if (!process.env.MONGODB_URI) {
+// MongoDB URI with fallback for Railway deployment
+const MONGODB_URI = process.env.MONGODB_URI || 
+    process.env.DATABASE_URL || 
+    'mongodb+srv://saikumarreddyappidi274_db_user:Prabkal99@cluster0.qbmu8a8.mongodb.net/lenslink?retryWrites=true&w=majority';
+
+if (!MONGODB_URI) {
     console.error('❌ Missing MONGODB_URI environment variable');
+    console.error('💡 Set MONGODB_URI in Railway environment variables');
     process.exit(1);
 }
+
+console.log('🔗 Using MongoDB URI:', MONGODB_URI.substring(0, 50) + '...');
 
 const corsOptions = {
     origin: [
@@ -116,7 +124,7 @@ app.use('*', (req, res) => {
 const startServer = async () => {
     try {
         mongoose.set('strictQuery', false);
-        await mongoose.connect(process.env.MONGODB_URI, {
+        await mongoose.connect(MONGODB_URI, {
             maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL || '10', 10)
         });
 
