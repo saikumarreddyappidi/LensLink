@@ -1035,7 +1035,7 @@
                 <div>
                     <h4 class="font-semibold mb-4">Contact</h4>
                     <p class="text-slate-400">saikumarreddyappidi9@gmail.com</p>
-                    <p class="text-slate-400">989889899</p>
+                    <p class="text-slate-400">8500079501</p>
                 </div>
             </div>
             <div class="mt-8 pt-8 border-t border-slate-700 text-center text-slate-500 text-sm">
@@ -1046,7 +1046,7 @@
 
     <script>
         // 🚀 Railway Backend Integration
-    const API_BASE_URL = '/api'; // Proxy via Netlify redirects to Railway backend
+    const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:8080/api' : '/api'; // Local dev or production proxy
         let backendAvailable = false;
         
         // Test backend connection
