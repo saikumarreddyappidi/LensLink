@@ -94,9 +94,6 @@ function saveFallbackStorage() {
     }
 }
 
-const app = express();
-const PORT = process.env.PORT || 8080;
-
 // CORS configuration
 const corsOptions = {
     origin: [
