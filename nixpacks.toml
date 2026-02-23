@@ -7,7 +7,7 @@ NODE_ENV = "production"
 nixPkgs = ["nodejs_18"]
 
 [phases.install]
-cmd = "cd backend && npm install --production"
+cmd = "npm install --production"
 
 [start]
-cmd = "node start.js"
+cmd = "node server.js"

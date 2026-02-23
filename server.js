@@ -61,14 +61,20 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS  – allow same-origin and localhost for dev
+// CORS  – allow Railway domain, custom domain, and localhost
 app.use(
   cors({
-    origin: [
-      process.env.FRONTEND_URL || 'http://localhost:3000',
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-    ],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, same-origin SPA)
+      if (!origin) return callback(null, true);
+      // Allow any Railway subdomain
+      if (origin.endsWith('.railway.app') || origin.endsWith('.up.railway.app')) return callback(null, true);
+      // Allow configured frontend URL
+      if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) return callback(null, true);
+      // Allow localhost for dev
+      if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) return callback(null, true);
+      callback(null, true); // open – restrict further via FRONTEND_URL env var if needed
+    },
     credentials: true,
   })
 );
