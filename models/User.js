@@ -75,10 +75,12 @@ userSchema.methods.comparePassword = async function(enteredPassword) {
 
 // Generate JWT token
 userSchema.methods.getSignedJwtToken = function() {
+  const secret = process.env.JWT_SECRET || 'lenslink_fallback_secret_change_me';
+  const expire = process.env.JWT_EXPIRE || '30d';
   return jwt.sign(
     { id: this._id, role: this.role },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE }
+    secret,
+    { expiresIn: expire }
   );
 };
 

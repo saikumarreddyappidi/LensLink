@@ -32,6 +32,15 @@ router.post('/register', [
     .withMessage('Role must be either client or photographer')
 ], async (req, res) => {
   try {
+    // Guard: reject immediately if DB is not connected (saves a 30-s timeout)
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database not connected. Please try again in a moment.',
+      });
+    }
+
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -153,8 +162,7 @@ router.post('/register', [
     console.error('Registration error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error in user registration',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      message: 'Error in user registration: ' + error.message,
     });
   }
 });
@@ -234,6 +242,15 @@ router.post('/login', [
     .withMessage('Password is required')
 ], async (req, res) => {
   try {
+    // Guard: reject immediately if DB is not connected
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database not connected. Please try again in a moment.',
+      });
+    }
+
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -302,8 +319,7 @@ router.post('/login', [
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error in user login',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      message: 'Error in user login: ' + error.message,
     });
   }
 });
