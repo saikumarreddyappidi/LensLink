@@ -50,6 +50,7 @@ app.use(
 );
 
 // ── Health endpoint (BEFORE rate limiter so it is never throttled) ───────────
+// Always returns 200 — used by the frontend to detect if backend is reachable.
 app.get('/api/health', (req, res) => {
   const dbState = mongoose.connection.readyState;
   const dbStatus = ['disconnected', 'connected', 'connecting', 'disconnecting'][dbState] || 'unknown';
@@ -59,6 +60,18 @@ app.get('/api/health', (req, res) => {
     db       : dbStatus,
     timestamp: new Date().toISOString(),
   });
+});
+
+// ── Readiness endpoint — returns 503 until MongoDB is connected ───────────────
+// Used by railway.json healthcheckPath so Railway only routes traffic once DB
+// is fully connected. Eliminates 504s caused by requests arriving before Atlas.
+app.get('/api/ready', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = ['disconnected', 'connected', 'connecting', 'disconnecting'][dbState] || 'unknown';
+  if (dbState === 1) {
+    return res.status(200).json({ success: true, status: 'ready', db: dbStatus });
+  }
+  res.status(503).json({ success: false, status: 'db_not_ready', db: dbStatus });
 });
 
 // HTTP request logger (skip in test environments)

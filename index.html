@@ -1360,8 +1360,30 @@
         window.handleRegister = handleRegister;
 
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('‚¬ DOM Content Loaded - Initializing LensLink');
-            
+            console.log('✅ DOM Content Loaded - Initializing LensLink');
+
+            // --- Page Navigation (set up FIRST so buttons work immediately) ---
+            document.querySelectorAll('a[data-page]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.getAttribute('data-page');
+                    showPage(pageId);
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            // --- Mobile Menu (also set up immediately) ---
+            const _mobileMenuButton = document.getElementById('mobile-menu-button');
+            const _mobileMenu = document.getElementById('mobile-menu');
+            if (_mobileMenuButton && _mobileMenu) {
+                _mobileMenuButton.addEventListener('click', () => {
+                    _mobileMenu.classList.toggle('hidden');
+                });
+            }
+
             // Test backend connection with retry for cross-device sync
             await testBackendConnection();
             
@@ -1584,30 +1606,7 @@
                 }
             };
 
-            // --- Page Navigation ---
-            const navLinks = document.querySelectorAll('a[data-page]');
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const pageId = link.getAttribute('data-page');
-                    showPage(pageId);
-                    // Close mobile menu on navigation
-                    const mobileMenu = document.getElementById('mobile-menu');
-                    if(mobileMenu && !mobileMenu.classList.contains('hidden')) {
-                        mobileMenu.classList.add('hidden');
-                    }
-                });
-            });
-
-            // --- Mobile Menu ---
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
+            // --- Page Navigation & Mobile Menu already set up at top of DOMContentLoaded ---
 
             // --- User Menu Dropdown ---
             const userMenuButton = document.getElementById('user-menu-button');
