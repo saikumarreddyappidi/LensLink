@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LensLink Account Transfer Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h1 class="text-2xl font-bold text-center mb-6">LensLink Account Transfer</h1>
+        
+        <div class="space-y-6">
+            <!-- Export Section -->
+            <div class="border p-4 rounded">
+                <h2 class="text-lg font-semibold mb-3">📤 Export Your Account (From Laptop)</h2>
+                <p class="text-sm text-gray-600 mb-3">Click this button on your laptop to get your account data:</p>
+                <button onclick="exportData()" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Export Account Data
+                </button>
+                <textarea id="exportData" placeholder="Your account data will appear here..." 
+                         class="w-full mt-3 p-2 border rounded h-32 text-xs" readonly></textarea>
+            </div>
+
+            <!-- Import Section -->
+            <div class="border p-4 rounded">
+                <h2 class="text-lg font-semibold mb-3">📥 Import Your Account (To Phone)</h2>
+                <p class="text-sm text-gray-600 mb-3">Paste your account data here on your phone:</p>
+                <textarea id="importData" placeholder="Paste your account data here..." 
+                         class="w-full p-2 border rounded h-32 text-xs"></textarea>
+                <button onclick="importData()" class="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mt-3">
+                    Import Account Data
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="index.html" class="text-blue-500 hover:underline">← Back to LensLink</a>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEYS = {
+            users: 'lenslink_users',
+            currentUser: 'lenslink_current_user',
+            photographers: 'lenslink_photographers'
+        };
+
+        function exportData() {
+            try {
+                const users = localStorage.getItem(STORAGE_KEYS.users) || '[]';
+                const currentUser = localStorage.getItem(STORAGE_KEYS.currentUser) || 'null';
+                const photographers = localStorage.getItem(STORAGE_KEYS.photographers) || '[]';
+                
+                const exportObj = {
+                    users: JSON.parse(users),
+                    currentUser: JSON.parse(currentUser),
+                    photographers: JSON.parse(photographers),
+                    exportDate: new Date().toISOString()
+                };
+                
+                const exportString = JSON.stringify(exportObj, null, 2);
+                document.getElementById('exportData').value = exportString;
+                
+                // Also copy to clipboard
+                navigator.clipboard.writeText(exportString).then(() => {
+                    alert('✅ Account data exported and copied to clipboard! You can now paste this on your phone.');
+                }).catch(() => {
+                    alert('✅ Account data exported! Please copy the text manually and paste it on your phone.');
+                });
+                
+            } catch (error) {
+                alert('❌ Error exporting data: ' + error.message);
+            }
+        }
+
+        function importData() {
+            try {
+                const importText = document.getElementById('importData').value.trim();
+                if (!importText) {
+                    alert('❌ Please paste your account data first');
+                    return;
+                }
+                
+                const importObj = JSON.parse(importText);
+                
+                // Validate data structure
+                if (!importObj.users || !Array.isArray(importObj.users)) {
+                    throw new Error('Invalid data format');
+                }
+                
+                // Import data to localStorage
+                localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(importObj.users));
+                localStorage.setItem(STORAGE_KEYS.photographers, JSON.stringify(importObj.photographers || []));
+                if (importObj.currentUser) {
+                    localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(importObj.currentUser));
+                }
+                
+                alert('✅ Account data imported successfully! You can now login with your existing credentials.');
+                
+                // Clear the textarea
+                document.getElementById('importData').value = '';
+                
+            } catch (error) {
+                alert('❌ Error importing data: ' + error.message + '\nPlease make sure you pasted the correct data.');
+            }
+        }
+    </script>
+</body>
+</html>

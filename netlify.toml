@@ -1,0 +1,94 @@
+# Final deployment verification complete - All systems operational - 2025-10-22 05:35
+[build]
+  # Static site - no build needed
+  command = "echo 'Static site deployment'"
+  
+  # Directory to publish (root directory)
+  publish = "."
+  
+  # Ignore backend and node_modules for faster deployment
+  ignore = "backend/**,node_modules/**"
+
+[build.environment]
+  # Node.js version (if needed)
+  NODE_VERSION = "18"
+
+# Force HTTPS redirect (now working!)
+[[redirects]]
+  from = "http://lenslink.live/*"
+  to = "https://lenslink.live/:splat"
+  status = 301
+  force = true
+
+# Force HTTPS for www subdomain
+[[redirects]]
+  from = "http://www.lenslink.live/*"
+  to = "https://lenslink.live/:splat"
+  status = 301
+  force = true
+
+# Redirect www to non-www (HTTPS)
+[[redirects]]
+  from = "https://www.lenslink.live/*"
+  to = "https://lenslink.live/:splat"
+  status = 301
+  force = true
+
+# API Proxy to Railway Backend (MUST be first to take priority)
+[[redirects]]
+  from = "/api/*"
+  to = "https://lenslink-production.up.railway.app/api/:splat"
+  status = 200
+  force = true
+
+# Single Page Application fallback (MUST be last)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Force HTTPS
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Security headers
+    Content-Security-Policy = "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; img-src 'self' https: data: blob:; font-src 'self' https: data:;"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Custom error pages
+[[redirects]]
+  from = "/404"
+  to = "/index.html"
+  status = 404
+
+# SSL/TLS Configuration
+[context.production.environment]
+  HTTPS_REDIRECT = "true"
+  SSL_VERIFY = "true"
+
+# Additional security headers for SSL
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Ensure secure connections
+    X-Forwarded-Proto = "https"
