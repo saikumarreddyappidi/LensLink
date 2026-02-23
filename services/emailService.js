@@ -44,11 +44,14 @@ function getTransporter() {
   // Always create a fresh transporter (never cache a failed one)
   // Port 587 + STARTTLS — Railway blocks port 465 (SSL)
   return nodemailer.createTransport({
-    host  : 'smtp.gmail.com',
-    port  : 587,
-    secure: false,           // STARTTLS (not SSL)
-    auth  : { user, pass },
-    tls   : { rejectUnauthorized: false },
+    host             : 'smtp.gmail.com',
+    port             : 587,
+    secure           : false,           // STARTTLS (not SSL)
+    auth             : { user, pass },
+    tls              : { rejectUnauthorized: false },
+    connectionTimeout: 15000,   // fail fast if Railway blocks SMTP
+    socketTimeout    : 15000,
+    greetingTimeout  : 10000,
   });
 }
 
