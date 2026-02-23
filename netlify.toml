@@ -37,7 +37,7 @@
 # API Proxy to Railway Backend (MUST be first to take priority)
 [[redirects]]
   from = "/api/*"
-  to = "https://lenslink-production.up.railway.app/api/:splat"
+  to = "https://web-production-c134.up.railway.app/api/:splat"
   status = 200
   force = true
 
