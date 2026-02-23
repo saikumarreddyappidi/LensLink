@@ -1,74 +1,28 @@
-# Railway ignore file - exclude these from deployment
+﻿# Railway ignore file - only exclude what's truly unnecessary
 
-# Local development files
+# Local environment secrets (set these in Railway Variables tab instead)
 .env
 .env.local
 .env.development
 .env.test
 
+# Dependency directories (Railway installs these fresh)
+node_modules/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# nyc test coverage
-.nyc_output
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env
+# OS generated files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
 
 # IDE files
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Temporary files
-*.tmp
-*.temp
-
-# Documentation
-README.md
-BACKEND-IMPLEMENTATION.md
-CROSS-DEVICE-LOGIN-FIX.md
-RAILWAY-DEPLOY.md
 
 # Test files
 test/
@@ -76,15 +30,9 @@ tests/
 *.test.js
 *.spec.js
 
-# Build files that aren't needed
-dist/
-build/
+# Git
+.git/
 
-# Frontend files not needed for backend
-index.html
-lenslink-enhanced.html
-account-transfer.html
-index-with-backend.html
-*.css
-*.js
-!backend/**/*.js
+# Temporary files
+*.tmp
+*.temp
