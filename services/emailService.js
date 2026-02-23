@@ -1,68 +1,69 @@
 /**
  * services/emailService.js
  * ─────────────────────────────────────────────────────────
- * Centralised Nodemailer helper.
+ * Unified email helper — uses Resend (HTTPS API) when
+ * RESEND_API_KEY is set, falls back to Nodemailer + Gmail
+ * for local development.
  *
- * All email-sending logic lives here so routes stay thin.
- * Configure your Gmail App-Password in .env:
- *
- *   GMAIL_USER=saikumarreddyappidi9@gmail.com
- *   GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx   ← 16-char app password
+ * Production (Railway) env vars needed:
+ *   RESEND_API_KEY=re_xxxxxxxxxxxx      ← from resend.com
  *   ADMIN_EMAIL=saikumarreddyappidi9@gmail.com
- *   APP_URL=http://localhost:3000
+ *   APP_URL=https://lenslink.live
+ *
+ * Local dev only (no Resend):
+ *   GMAIL_USER=...
+ *   GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
  */
 
 const nodemailer = require('nodemailer');
 
-// ── Transporter ──────────────────────────────────────────
-/**
- * Build a Nodemailer transporter.
- * We create it lazily (on first use) so the server can start
- * even when Gmail credentials are still being set up.
- */
-let _transporter = null;
+// ── Shared config ─────────────────────────────────────────
+const FROM_NAME  = 'LensLink';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@lenslink.live';
+const FROM       = `"${FROM_NAME}" <${FROM_EMAIL}>`;
+const ADMIN      = process.env.ADMIN_EMAIL || 'saikumarreddyappidi9@gmail.com';
+const APP_URL    = process.env.APP_URL || 'https://lenslink.live';
 
-function getTransporter() {
-  const user = process.env.GMAIL_USER;
-  const pass = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, ''); // strip spaces
-
-  if (!user || !pass || pass === 'your_gmail_app_password_here') {
-    console.warn(
-      '⚠️  Email service: GMAIL_USER / GMAIL_APP_PASSWORD not set. ' +
-        'Emails will be logged to console but NOT sent.'
-    );
-    return {
-      sendMail: async (opts) => {
-        console.log('\n📧 [EMAIL - not sent, no credentials]');
-        console.log('  To     :', opts.to);
-        console.log('  Subject:', opts.subject);
-        return { messageId: 'mock-' + Date.now() };
-      },
-    };
+// ── Generic send helper ───────────────────────────────────
+// Routes through Resend (HTTPS) or Nodemailer+Gmail depending on env.
+async function sendEmail({ to, subject, html, text }) {
+  // ── Resend (production — HTTPS, no SMTP port issues) ─────
+  if (process.env.RESEND_API_KEY) {
+    const { Resend } = require('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { data, error } = await resend.emails.send({
+      from   : FROM,
+      to     : Array.isArray(to) ? to : [to],
+      subject: subject,
+      html   : html,
+      text   : text,
+    });
+    if (error) throw new Error(error.message || JSON.stringify(error));
+    return data;
   }
 
-  // Always create a fresh transporter (never cache a failed one)
-  // Port 587 + STARTTLS — Railway blocks port 465 (SSL)
-  return nodemailer.createTransport({
+  // ── Nodemailer fallback (local dev with Gmail App Password) ─
+  const user = process.env.GMAIL_USER;
+  const pass = (process.env.GMAIL_APP_PASSWORD || '').replace(/\s+/g, '');
+
+  if (!user || !pass || pass === 'your_gmail_app_password_here') {
+    console.warn('⚠️  No email credentials. Email NOT sent:');
+    console.log('  To     :', to);
+    console.log('  Subject:', subject);
+    return { messageId: 'mock-' + Date.now() };
+  }
+
+  const transporter = nodemailer.createTransport({
     host             : 'smtp.gmail.com',
     port             : 587,
-    secure           : false,           // STARTTLS (not SSL)
+    secure           : false,
     auth             : { user, pass },
     tls              : { rejectUnauthorized: false },
-    connectionTimeout: 15000,   // fail fast if Railway blocks SMTP
+    connectionTimeout: 15000,
     socketTimeout    : 15000,
     greetingTimeout  : 10000,
   });
-}
 
-// ── Shared sender address ─────────────────────────────────
-const FROM = `"LensLink" <${process.env.GMAIL_USER || 'noreply@lenslink.live'}>`;
-const ADMIN = process.env.ADMIN_EMAIL || 'saikumarreddyappidi9@gmail.com';
-const APP_URL = process.env.APP_URL || 'http://localhost:3000';
-
-// ── Generic send helper ───────────────────────────────────
-async function sendEmail({ to, subject, html, text }) {
-  const transporter = getTransporter();
   return transporter.sendMail({ from: FROM, to, subject, html, text });
 }
 

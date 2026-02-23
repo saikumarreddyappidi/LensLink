@@ -8,7 +8,13 @@
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["photography", "booking", "mongodb", "express", "nodemailer"],
+  "keywords": [
+    "photography",
+    "booking",
+    "mongodb",
+    "express",
+    "nodemailer"
+  ],
   "author": "SaiKumarReddy",
   "license": "MIT",
   "dependencies": {
@@ -23,7 +29,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.1",
     "morgan": "^1.10.0",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "resend": "^6.9.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
