@@ -159,7 +159,7 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
 
 // Connect to MongoDB and seed admin in the background (non-blocking)
-(async () => {
+async function attemptDBConnect() {
   try {
     await connectDB();
     console.log('🗄️  MongoDB connected successfully');
@@ -181,22 +181,25 @@ process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
       console.log(`👑 Admin account created → ${adminEmail}`);
       console.log(`🔑 Admin password        → ${adminPass}`);
     }
+    return true;
   } catch (err) {
-    // Log the error but do NOT exit — let Railway see the server is alive.
-    // Requests needing DB will fail with 503 until DB reconnects.
+    const uri = (process.env.MONGODB_URI || '').replace(/:([^@]+)@/, ':***@'); // mask password
     console.error('❌ MongoDB connection failed:', err.message);
-    console.error('⚠️  Server will keep running; DB-dependent routes will return errors.');
-    // Retry connection every 30 seconds
-    setInterval(async () => {
-      try {
-        await connectDB();
-        console.log('✅ MongoDB reconnected successfully');
-      } catch (retryErr) {
-        console.error('🔄 MongoDB retry failed:', retryErr.message);
-      }
-    }, 30000);
+    console.error('   URI (masked):', uri || '(not set)');
+    console.error('⚠️  Will retry every 5 seconds...');
+    return false;
   }
-})();
+}
+
+attemptDBConnect().then(ok => {
+  if (!ok) {
+    const retryInterval = setInterval(async () => {
+      console.log('🔄 Retrying MongoDB connection...');
+      const success = await attemptDBConnect();
+      if (success) clearInterval(retryInterval);
+    }, 5000);
+  }
+});
 
 module.exports = app; // for testing
 

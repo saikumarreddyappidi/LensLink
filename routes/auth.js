@@ -1,5 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const Photographer = require('../models/Photographer');
@@ -10,6 +11,26 @@ const {
 } = require('../services/emailService');
 
 const router = express.Router();
+
+// Wait up to `ms` milliseconds for MongoDB to reach readyState 1
+function waitForDB(ms = 15000) {
+  return new Promise((resolve) => {
+    if (mongoose.connection.readyState === 1) return resolve(true);
+    const interval = 500;
+    let elapsed = 0;
+    const timer = setInterval(() => {
+      elapsed += interval;
+      if (mongoose.connection.readyState === 1) {
+        clearInterval(timer);
+        return resolve(true);
+      }
+      if (elapsed >= ms) {
+        clearInterval(timer);
+        return resolve(false);
+      }
+    }, interval);
+  });
+}
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -32,12 +53,12 @@ router.post('/register', [
     .withMessage('Role must be either client or photographer')
 ], async (req, res) => {
   try {
-    // Guard: reject immediately if DB is not connected (saves a 30-s timeout)
-    const mongoose = require('mongoose');
-    if (mongoose.connection.readyState !== 1) {
+    // Wait up to 15s for DB to connect (handles cold-start race condition)
+    const dbReady = await waitForDB(15000);
+    if (!dbReady) {
       return res.status(503).json({
         success: false,
-        message: 'Database not connected. Please try again in a moment.',
+        message: 'Server is starting up — database not ready yet. Please wait 15 seconds and try again.',
       });
     }
 
@@ -242,12 +263,12 @@ router.post('/login', [
     .withMessage('Password is required')
 ], async (req, res) => {
   try {
-    // Guard: reject immediately if DB is not connected
-    const mongoose = require('mongoose');
-    if (mongoose.connection.readyState !== 1) {
+    // Wait up to 15s for DB (handles cold-start)
+    const dbReady = await waitForDB(15000);
+    if (!dbReady) {
       return res.status(503).json({
         success: false,
-        message: 'Database not connected. Please try again in a moment.',
+        message: 'Server is starting up — database not ready yet. Please wait 15 seconds and try again.',
       });
     }
 
