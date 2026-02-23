@@ -4,14 +4,14 @@ FROM node:18-alpine
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy backend package.json and package-lock.json (if available)
-COPY backend/package*.json ./
+# Copy root package.json and package-lock.json
+COPY package*.json ./
 
-# Install backend dependencies
-RUN npm ci --only=production
+# Install dependencies
+RUN npm ci --omit=dev
 
-# Copy the backend source code
-COPY backend/ ./
+# Copy all source files
+COPY . .
 
 # Create a non-root user to run the app
 RUN addgroup -g 1001 -S nodejs
