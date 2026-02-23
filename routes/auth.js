@@ -13,7 +13,8 @@ const {
 const router = express.Router();
 
 // Wait up to `ms` milliseconds for MongoDB to reach readyState 1
-function waitForDB(ms = 15000) {
+// Also accepts readyState 2 (connecting) and waits for it to resolve
+function waitForDB(ms = 40000) {
   return new Promise((resolve) => {
     if (mongoose.connection.readyState === 1) return resolve(true);
     const interval = 500;
@@ -53,12 +54,12 @@ router.post('/register', [
     .withMessage('Role must be either client or photographer')
 ], async (req, res) => {
   try {
-    // Wait up to 15s for DB to connect (handles cold-start race condition)
-    const dbReady = await waitForDB(15000);
+    // Wait up to 40s for DB (handles cold-start — 8s timeout × ~3 retry cycles)
+    const dbReady = await waitForDB(40000);
     if (!dbReady) {
       return res.status(503).json({
         success: false,
-        message: 'Server is starting up — database not ready yet. Please wait 15 seconds and try again.',
+        message: 'Cannot reach the database. Please try again in a moment.',
       });
     }
 
@@ -263,12 +264,12 @@ router.post('/login', [
     .withMessage('Password is required')
 ], async (req, res) => {
   try {
-    // Wait up to 15s for DB (handles cold-start)
-    const dbReady = await waitForDB(15000);
+    // Wait up to 40s for DB (handles cold-start)
+    const dbReady = await waitForDB(40000);
     if (!dbReady) {
       return res.status(503).json({
         success: false,
-        message: 'Server is starting up — database not ready yet. Please wait 15 seconds and try again.',
+        message: 'Cannot reach the database. Please try again in a moment.',
       });
     }
 
