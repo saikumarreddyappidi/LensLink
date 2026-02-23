@@ -137,9 +137,37 @@ app.use((err, req, res, next) => {
 // ── Bootstrap ─────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 
+// Start HTTP server immediately so Railway health checks can reach /api/health
+// even while MongoDB is still connecting.
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log('');
+  console.log('╔════════════════════════════════════════╗');
+  console.log(`║  🚀 LensLink server running             ║`);
+  console.log(`║  🌐 http://localhost:${PORT}               ║`);
+  console.log(`║  📡 API  http://localhost:${PORT}/api       ║`);
+  console.log(`║  ⏳ Connecting to MongoDB...            ║`);
+  console.log('╚════════════════════════════════════════╝');
+  console.log('');
+});
+
+// Graceful shutdown
+const gracefulShutdown = (signal) => {
+  console.log(`\n${signal} received – shutting down gracefully...`);
+  server.close(async () => {
+    await mongoose.connection.close();
+    console.log('✅ Server closed.');
+    process.exit(0);
+  });
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
+
+// Connect to MongoDB and seed admin in the background (non-blocking)
 (async () => {
   try {
     await connectDB();
+    console.log('🗄️  MongoDB connected successfully');
 
     // ── Auto-seed admin account ────────────────────────────
     const User = require('./models/User');
@@ -158,34 +186,20 @@ const PORT = process.env.PORT || 3000;
       console.log(`👑 Admin account created → ${adminEmail}`);
       console.log(`🔑 Admin password        → ${adminPass}`);
     }
-
-    const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log('');
-      console.log('╔════════════════════════════════════════╗');
-      console.log(`║  🚀 LensLink server running             ║`);
-      console.log(`║  🌐 http://localhost:${PORT}               ║`);
-      console.log(`║  📡 API  http://localhost:${PORT}/api       ║`);
-      console.log(`║  🗄️  MongoDB connected                  ║`);
-      console.log('╚════════════════════════════════════════╝');
-      console.log('');
-    });
-
-    // Graceful shutdown
-    const gracefulShutdown = (signal) => {
-      console.log(`\n${signal} received – shutting down gracefully...`);
-      server.close(async () => {
-        await mongoose.connection.close();
-        console.log('✅ Server closed.');
-        process.exit(0);
-      });
-    };
-
-    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-    process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
-
   } catch (err) {
-    console.error('❌ Failed to start server:', err.message);
-    process.exit(1);
+    // Log the error but do NOT exit — let Railway see the server is alive.
+    // Requests needing DB will fail with 503 until DB reconnects.
+    console.error('❌ MongoDB connection failed:', err.message);
+    console.error('⚠️  Server will keep running; DB-dependent routes will return errors.');
+    // Retry connection every 30 seconds
+    setInterval(async () => {
+      try {
+        await connectDB();
+        console.log('✅ MongoDB reconnected successfully');
+      } catch (retryErr) {
+        console.error('🔄 MongoDB retry failed:', retryErr.message);
+      }
+    }, 30000);
   }
 })();
 
