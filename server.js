@@ -39,6 +39,9 @@ const adminRoutes        = require('./routes/admin');
 // ── App setup ─────────────────────────────────────────────
 const app = express();
 
+// Trust Railway's reverse proxy so real client IPs are used for rate limiting
+app.set('trust proxy', 1);
+
 // Security headers  (relax CSP slightly so Tailwind CDN works)
 app.use(
   helmet({
@@ -46,18 +49,29 @@ app.use(
   })
 );
 
+// ── Health endpoint (BEFORE rate limiter so it is never throttled) ───────────
+app.get('/api/health', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = ['disconnected', 'connected', 'connecting', 'disconnecting'][dbState] || 'unknown';
+  res.status(200).json({
+    success  : true,
+    status   : 'ok',
+    db       : dbStatus,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // HTTP request logger (skip in test environments)
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// Rate limiting  (1 000 req / 15 min per IP — generous for dev/single-user)
+// Rate limiting  (1 000 req / 15 min per IP)
 const limiter = rateLimit({
-  windowMs : 15 * 60 * 1000,
-  max      : 1000,
+  windowMs       : 15 * 60 * 1000,
+  max            : 1000,
   standardHeaders: true,
   legacyHeaders  : false,
-  skip: (req) => req.path === '/api/health', // never rate-limit the health check
 });
 app.use(limiter);
 
@@ -85,25 +99,6 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Static files – serve index.html + all assets from project root
 app.use(express.static(path.join(__dirname)));
-
-// ── Health endpoint ───────────────────────────────────────
-/**
- * GET /api/health
- * Used by the frontend to detect whether the backend is alive.
- * Returns MongoDB connection state so the UI can show the correct badge.
- */
-app.get('/api/health', (req, res) => {
-  const dbState = mongoose.connection.readyState;
-  // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
-  const dbStatus = ['disconnected', 'connected', 'connecting', 'disconnecting'][dbState] || 'unknown';
-
-  res.status(200).json({
-    success   : true,
-    status    : 'ok',
-    db        : dbStatus,
-    timestamp : new Date().toISOString(),
-  });
-});
 
 // ── API routes ────────────────────────────────────────────
 app.use('/api/auth',          authRoutes);
