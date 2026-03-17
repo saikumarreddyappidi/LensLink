@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LensLink - Professional Photography Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body class="bg-slate-50">
+    <!-- Header with API Status -->
+    <div id="apiStatus" class="bg-green-500 text-white text-center py-2 text-sm">
+        🌐 Connected to LensLink Backend API
+    </div>
+
+    <!-- Your existing LensLink HTML content goes here -->
+    <!-- I'm focusing on the JavaScript API integration -->
+
+    <script>
+        // ==========================================
+        // LensLink Backend API Integration
+        // ==========================================
+
+        // API Configuration
+        const API_CONFIG = {
+            baseUrl: 'https://your-backend-url.com/api', // Update this with your actual backend URL
+            timeout: 10000,
+            retries: 3
+        };
+
+        // Authentication token management
+        let authToken = localStorage.getItem('lenslink_auth_token');
+        let currentUser = null;
+        let allUsers = [];
+        let allPhotographers = [];
+
+        // ==========================================
+        // API Utility Functions
+        // ==========================================
+
+        async function apiRequest(endpoint, options = {}) {
+            const url = `${API_CONFIG.baseUrl}${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            };
+
+            // Add authorization header if token exists
+            if (authToken) {
+                config.headers.Authorization = `Bearer ${authToken}`;
+            }
+
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'API request failed');
+                }
+
+                return data;
+            } catch (error) {
+                console.error(`API Error (${endpoint}):`, error);
+                
+                // Handle token expiration
+                if (error.message.includes('Invalid token') || error.message.includes('token')) {
+                    handleTokenExpiration();
+                }
+                
+                throw error;
+            }
+        }
+
+        function handleTokenExpiration() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('lenslink_auth_token');
+            localStorage.removeItem('lenslink_current_user');
+            
+            // Redirect to login or show login modal
+            showAuthModal();
+            updateUIForLogout();
+        }
+
+        // ==========================================
+        // Authentication Functions
+        // ==========================================
+
+        async function registerUser(userData) {
+            try {
+                console.log('🚀 Registering user via API...', userData.email);
+                
+                const result = await apiRequest('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify(userData)
+                });
+
+                if (result.success) {
+                    authToken = result.data.token;
+                    currentUser = result.data.user;
+                    
+                    // Store in localStorage for persistence
+                    localStorage.setItem('lenslink_auth_token', authToken);
+                    localStorage.setItem('lenslink_current_user', JSON.stringify(currentUser));
+                    
+                    console.log('✅ Registration successful via API');
+                    updateUIForLogin();
+                    
+                    // Load fresh data
+                    await loadAllData();
+                    
+                    return { success: true, user: currentUser };
+                }
+                
+                return result;
+                
+            } catch (error) {
+                console.error('❌ Registration failed:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function loginUser(email, password) {
+            try {
+                console.log('🔐 Logging in via API...', email);
+                
+                const result = await apiRequest('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (result.success) {
+                    authToken = result.data.token;
+                    currentUser = result.data.user;
+                    
+                    // Store in localStorage for persistence
+                    localStorage.setItem('lenslink_auth_token', authToken);
+                    localStorage.setItem('lenslink_current_user', JSON.stringify(currentUser));
+                    
+                    console.log('✅ Login successful via API');
+                    updateUIForLogin();
+                    
+                    // Load fresh data
+                    await loadAllData();
+                    
+                    return { success: true, user: currentUser };
+                }
+                
+                return result;
+                
+            } catch (error) {
+                console.error('❌ Login failed:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function logoutUser() {
+            try {
+                await apiRequest('/auth/logout', { method: 'POST' });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                authToken = null;
+                currentUser = null;
+                allUsers = [];
+                allPhotographers = [];
+                
+                localStorage.removeItem('lenslink_auth_token');
+                localStorage.removeItem('lenslink_current_user');
+                
+                updateUIForLogout();
+                console.log('✅ Logged out successfully');
+            }
+        }
+
+        async function verifyToken() {
+            try {
+                if (!authToken) return false;
+                
+                const result = await apiRequest('/auth/me');
+                
+                if (result.success) {
+                    currentUser = result.data.user;
+                    localStorage.setItem('lenslink_current_user', JSON.stringify(currentUser));
+                    return true;
+                }
+                
+                return false;
+                
+            } catch (error) {
+                console.error('Token verification failed:', error);
+                return false;
+            }
+        }
+
+        // ==========================================
+        // Data Loading Functions
+        // ==========================================
+
+        async function loadAllData() {
+            try {
+                console.log('📊 Loading data from API...');
+                
+                // Load photographers
+                await loadPhotographers();
+                
+                // Load user's bookings if logged in
+                if (currentUser) {
+                    await loadUserBookings();
+                }
+                
+                console.log('✅ All data loaded from API');
+                
+            } catch (error) {
+                console.error('❌ Failed to load data:', error);
+            }
+        }
+
+        async function loadPhotographers() {
+            try {
+                const result = await apiRequest('/photographers');
+                
+                if (result.success) {
+                    allPhotographers = result.data.photographers;
+                    console.log('✅ Loaded photographers from API:', allPhotographers.length);
+                    
+                    // Update UI components that show photographers
+                    updatePhotographerDisplays();
+                }
+                
+            } catch (error) {
+                console.error('❌ Failed to load photographers:', error);
+            }
+        }
+
+        async function loadUserBookings() {
+            try {
+                const result = await apiRequest('/bookings/my-bookings');
+                
+                if (result.success) {
+                    const userBookings = result.data.bookings;
+                    console.log('✅ Loaded user bookings from API:', userBookings.length);
+                    
+                    // Update UI components that show bookings
+                    updateBookingDisplays(userBookings);
+                }
+                
+            } catch (error) {
+                console.error('❌ Failed to load bookings:', error);
+            }
+        }
+
+        // ==========================================
+        // Booking Functions
+        // ==========================================
+
+        async function createBooking(bookingData) {
+            try {
+                console.log('📅 Creating booking via API...', bookingData);
+                
+                const result = await apiRequest('/bookings', {
+                    method: 'POST',
+                    body: JSON.stringify(bookingData)
+                });
+
+                if (result.success) {
+                    console.log('✅ Booking created successfully via API');
+                    
+                    // Refresh bookings
+                    await loadUserBookings();
+                    
+                    return { success: true, booking: result.data.booking };
+                }
+                
+                return result;
+                
+            } catch (error) {
+                console.error('❌ Booking creation failed:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // ==========================================
+        // UI Update Functions
+        // ==========================================
+
+        function updateUIForLogin() {
+            // Update navigation
+            const authButtons = document.getElementById('auth-buttons');
+            const userMenu = document.getElementById('user-menu');
+            
+            if (authButtons) authButtons.style.display = 'none';
+            if (userMenu) userMenu.style.display = 'block';
+            
+            // Update user info
+            const userName = document.getElementById('user-name');
+            if (userName && currentUser) {
+                userName.textContent = currentUser.name;
+            }
+            
+            // Update API status
+            updateApiStatus('Connected', 'green');
+        }
+
+        function updateUIForLogout() {
+            // Update navigation
+            const authButtons = document.getElementById('auth-buttons');
+            const userMenu = document.getElementById('user-menu');
+            
+            if (authButtons) authButtons.style.display = 'block';
+            if (userMenu) userMenu.style.display = 'none';
+            
+            // Update API status
+            updateApiStatus('Not authenticated', 'yellow');
+        }
+
+        function updateApiStatus(message, color) {
+            const statusEl = document.getElementById('apiStatus');
+            if (statusEl) {
+                statusEl.textContent = `🌐 ${message}`;
+                statusEl.className = `bg-${color}-500 text-white text-center py-2 text-sm`;
+            }
+        }
+
+        function updatePhotographerDisplays() {
+            // Update any UI components that display photographers
+            // This would trigger re-rendering of photographer lists, cards, etc.
+            console.log('🔄 Updating photographer displays...');
+            
+            // Example: Update photographer grid
+            displayPhotographersInBookingPage(allPhotographers);
+            loadRegisteredPhotographers();
+        }
+
+        function updateBookingDisplays(bookings) {
+            // Update any UI components that display bookings
+            console.log('🔄 Updating booking displays...');
+            
+            // Example: Update booking dashboard
+            if (typeof updateBookingDashboard === 'function') {
+                updateBookingDashboard(bookings);
+            }
+        }
+
+        // ==========================================
+        // Compatibility Functions (Bridge old localStorage code)
+        // ==========================================
+
+        // These functions maintain compatibility with existing localStorage-based code
+        function saveToLocalStorage() {
+            // This function now just returns true since we're using API
+            console.log('💾 Data automatically synced via API');
+            return Promise.resolve(true);
+        }
+
+        function loadFromLocalStorage() {
+            // Load from API instead
+            return loadAllData();
+        }
+
+        // ==========================================
+        // Initialization
+        // ==========================================
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Initializing LensLink with Backend API...');
+            
+            // Check if we have a stored token
+            authToken = localStorage.getItem('lenslink_auth_token');
+            const storedUser = localStorage.getItem('lenslink_current_user');
+            
+            if (authToken && storedUser) {
+                try {
+                    currentUser = JSON.parse(storedUser);
+                    
+                    // Verify token is still valid
+                    const isValid = await verifyToken();
+                    
+                    if (isValid) {
+                        updateUIForLogin();
+                        await loadAllData();
+                    } else {
+                        handleTokenExpiration();
+                    }
+                    
+                } catch (error) {
+                    console.error('Failed to restore session:', error);
+                    handleTokenExpiration();
+                }
+            } else {
+                updateUIForLogout();
+                // Still load public data (photographers)
+                await loadPhotographers();
+            }
+            
+            // Set up periodic token refresh
+            setInterval(async () => {
+                if (authToken) {
+                    await verifyToken();
+                }
+            }, 5 * 60 * 1000); // Check every 5 minutes
+            
+            console.log('✅ LensLink API integration initialized');
+        });
+
+        // ==========================================
+        // Error Handling
+        // ==========================================
+
+        window.addEventListener('unhandledrejection', function(event) {
+            if (event.reason && event.reason.message && event.reason.message.includes('API')) {
+                console.error('Unhandled API error:', event.reason);
+                updateApiStatus('API Error - Check console', 'red');
+            }
+        });
+
+        // ==========================================
+        // Global API Functions (for backward compatibility)
+        // ==========================================
+
+        // Make API functions globally available
+        window.LensLinkAPI = {
+            register: registerUser,
+            login: loginUser,
+            logout: logoutUser,
+            createBooking: createBooking,
+            loadPhotographers: loadPhotographers,
+            loadUserBookings: loadUserBookings,
+            getCurrentUser: () => currentUser,
+            getAuthToken: () => authToken,
+            isAuthenticated: () => !!authToken && !!currentUser
+        };
+
+        console.log('🌐 LensLink API functions available globally via window.LensLinkAPI');
+    </script>
+
+    <!-- Include your existing LensLink JavaScript code here -->
+    <!-- The API integration will work alongside your existing UI code -->
+    
+</body>
+</html>

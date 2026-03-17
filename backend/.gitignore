@@ -1,0 +1,5 @@
+# Ignore data files (contains user passwords and personal information)
+data/
+*.json
+# Keep directory structure but ignore contents
+!data/.gitkeep

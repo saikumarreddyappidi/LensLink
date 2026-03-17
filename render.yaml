@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: lenslink
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false          # set manually in Render dashboard
+      - key: APP_URL
+        sync: false          # set to https://<your-app>.onrender.com
+      - key: GMAIL_USER
+        value: saikumarreddyappidi274@gmail.com
+      - key: GMAIL_APP_PASSWORD
+        sync: false          # set manually — never commit app passwords
+      - key: ADMIN_EMAIL
+        value: saikumarreddyappidi274@gmail.com

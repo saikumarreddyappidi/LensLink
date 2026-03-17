@@ -1,0 +1,38 @@
+﻿# Railway ignore file - only exclude what's truly unnecessary
+
+# Local environment secrets (set these in Railway Variables tab instead)
+.env
+.env.local
+.env.development
+.env.test
+
+# Dependency directories (Railway installs these fresh)
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE files
+.vscode/
+.idea/
+
+# Test files
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Git
+.git/
+
+# Temporary files
+*.tmp
+*.temp

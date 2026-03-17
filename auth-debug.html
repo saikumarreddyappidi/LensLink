@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LensLink Debug - Sign In/Register Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8 bg-gray-50">
+    <h1 class="text-3xl font-bold mb-6 text-center text-red-600">🐛 LensLink Debug Tool</h1>
+    
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Status Check -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-bold mb-4">System Status Check</h2>
+            <div class="grid md:grid-cols-2 gap-4">
+                <button onclick="checkElements()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Check HTML Elements
+                </button>
+                <button onclick="checkEventListeners()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    Test Event Listeners
+                </button>
+                <button onclick="testLogin()" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
+                    Test Login Function
+                </button>
+                <button onclick="testNavigation()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                    Test Navigation
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-bold mb-4">Quick Test Actions</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <button onclick="simulateLogin()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                    🧪 Test Photographer Login
+                </button>
+                <button onclick="simulateRegister()" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600">
+                    🧪 Test Registration
+                </button>
+                <button onclick="openMainApp()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    🚀 Open Main App
+                </button>
+            </div>
+        </div>
+
+        <!-- Debug Results -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-bold mb-4">Debug Results</h2>
+            <div id="debug-output" class="bg-gray-100 p-4 rounded text-sm font-mono min-h-64 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('debug-output');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-blue-600',
+                success: 'text-green-600',
+                error: 'text-red-600',
+                warning: 'text-yellow-600'
+            };
+            output.innerHTML += `<div class="${colors[type]}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+
+        function checkElements() {
+            clearOutput();
+            log('🔍 Checking HTML Elements...', 'info');
+            
+            // Check login elements
+            const loginForm = parent.document?.getElementById('login-form');
+            const loginEmail = parent.document?.getElementById('login-email');
+            const loginPassword = parent.document?.getElementById('login-password');
+            const loginTab = parent.document?.getElementById('login-tab');
+            
+            log(`Login Form: ${loginForm ? '✓ Found' : '❌ Missing'}`, loginForm ? 'success' : 'error');
+            log(`Login Email: ${loginEmail ? '✓ Found' : '❌ Missing'}`, loginEmail ? 'success' : 'error');
+            log(`Login Password: ${loginPassword ? '✓ Found' : '❌ Missing'}`, loginPassword ? 'success' : 'error');
+            log(`Login Tab: ${loginTab ? '✓ Found' : '❌ Missing'}`, loginTab ? 'success' : 'error');
+            
+            // Check register elements
+            const registerForm = parent.document?.getElementById('register-form');
+            const registerName = parent.document?.getElementById('register-name');
+            const registerEmail = parent.document?.getElementById('register-email');
+            const registerRole = parent.document?.getElementById('register-role');
+            
+            log(`Register Form: ${registerForm ? '✓ Found' : '❌ Missing'}`, registerForm ? 'success' : 'error');
+            log(`Register Name: ${registerName ? '✓ Found' : '❌ Missing'}`, registerName ? 'success' : 'error');
+            log(`Register Email: ${registerEmail ? '✓ Found' : '❌ Missing'}`, registerEmail ? 'success' : 'error');
+            log(`Register Role: ${registerRole ? '✓ Found' : '❌ Missing'}`, registerRole ? 'success' : 'error');
+            
+            // Check navigation elements
+            const authButtons = parent.document?.getElementById('auth-buttons');
+            const userMenu = parent.document?.getElementById('user-menu');
+            const navLinks = parent.document?.querySelectorAll('a[data-page]');
+            
+            log(`Auth Buttons: ${authButtons ? '✓ Found' : '❌ Missing'}`, authButtons ? 'success' : 'error');
+            log(`User Menu: ${userMenu ? '✓ Found' : '❌ Missing'}`, userMenu ? 'success' : 'error');
+            log(`Navigation Links: ${navLinks ? navLinks.length + ' found' : '❌ Missing'}`, navLinks?.length > 0 ? 'success' : 'error');
+        }
+
+        function checkEventListeners() {
+            clearOutput();
+            log('🔍 Testing Event Listeners...', 'info');
+            
+            try {
+                // Test if we can access parent window functions
+                const parentWindow = parent;
+                log(`Parent window access: ${parentWindow ? '✓ Available' : '❌ Blocked'}`, parentWindow ? 'success' : 'error');
+                
+                // Test localStorage
+                const testKey = 'debug_test_' + Date.now();
+                localStorage.setItem(testKey, 'test');
+                const retrieved = localStorage.getItem(testKey);
+                localStorage.removeItem(testKey);
+                log(`LocalStorage: ${retrieved === 'test' ? '✓ Working' : '❌ Failed'}`, retrieved === 'test' ? 'success' : 'error');
+                
+                // Check if main app functions exist
+                if (parentWindow && parentWindow.showPage) {
+                    log('✓ showPage function exists', 'success');
+                } else {
+                    log('❌ showPage function missing', 'error');
+                }
+                
+                if (parentWindow && parentWindow.handleLogin) {
+                    log('✓ handleLogin function exists', 'success');
+                } else {
+                    log('❌ handleLogin function missing', 'error');
+                }
+                
+                if (parentWindow && parentWindow.updateUI) {
+                    log('✓ updateUI function exists', 'success');
+                } else {
+                    log('❌ updateUI function missing', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error testing functions: ${error.message}`, 'error');
+            }
+        }
+
+        function testLogin() {
+            clearOutput();
+            log('🧪 Testing Login Process...', 'info');
+            
+            try {
+                // Test sample photographer login
+                const samplePhotographer = {
+                    id: 'photo1',
+                    name: 'Jane Doe',
+                    email: 'jane@example.com',
+                    password: 'password123',
+                    role: 'photographer'
+                };
+                
+                // Store in localStorage
+                let users = JSON.parse(localStorage.getItem('lenslink_users') || '[]');
+                const existingUser = users.find(u => u.email === samplePhotographer.email);
+                if (!existingUser) {
+                    users.push(samplePhotographer);
+                    localStorage.setItem('lenslink_users', JSON.stringify(users));
+                    log('✓ Sample photographer added to storage', 'success');
+                } else {
+                    log('✓ Sample photographer already exists', 'success');
+                }
+                
+                // Test login credentials validation
+                const email = 'jane@example.com';
+                const password = 'password123';
+                
+                const foundUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+                if (foundUser && foundUser.password === password) {
+                    log('✓ Login credentials validation passed', 'success');
+                    log(`User found: ${foundUser.name} (${foundUser.role})`, 'info');
+                } else {
+                    log('❌ Login credentials validation failed', 'error');
+                }
+                
+                log('💡 Try logging in with: jane@example.com / password123', 'info');
+                
+            } catch (error) {
+                log(`❌ Login test error: ${error.message}`, 'error');
+            }
+        }
+
+        function testNavigation() {
+            clearOutput();
+            log('🧪 Testing Navigation...', 'info');
+            
+            try {
+                const parentDoc = parent.document;
+                if (!parentDoc) {
+                    log('❌ Cannot access parent document', 'error');
+                    return;
+                }
+                
+                // Test page elements
+                const pages = parentDoc.querySelectorAll('.page');
+                log(`Found ${pages.length} pages`, 'info');
+                
+                pages.forEach(page => {
+                    log(`Page: ${page.id} - ${page.classList.contains('active') ? 'Active' : 'Hidden'}`, 'info');
+                });
+                
+                // Test navigation links
+                const navLinks = parentDoc.querySelectorAll('a[data-page]');
+                log(`Found ${navLinks.length} navigation links`, 'info');
+                
+                navLinks.forEach(link => {
+                    const pageId = link.getAttribute('data-page');
+                    log(`Nav Link: ${link.textContent.trim()} → ${pageId}`, 'info');
+                });
+                
+            } catch (error) {
+                log(`❌ Navigation test error: ${error.message}`, 'error');
+            }
+        }
+
+        function simulateLogin() {
+            clearOutput();
+            log('🧪 Simulating Photographer Login...', 'info');
+            
+            try {
+                // Create sample photographer if not exists
+                const samplePhotographer = {
+                    id: 'photo1',
+                    name: 'Jane Doe',
+                    email: 'jane@example.com',
+                    password: 'password123',
+                    role: 'photographer',
+                    specialties: ['weddings', 'portraits'],
+                    hourlyRate: 200,
+                    experience: 10,
+                    location: 'New York, NY',
+                    profileImage: 'https://placehold.co/400x400/a78bfa/ffffff?text=Jane+Doe'
+                };
+                
+                // Set as current user
+                localStorage.setItem('lenslink_current_user', JSON.stringify(samplePhotographer));
+                
+                // Add to users list if not exists
+                let users = JSON.parse(localStorage.getItem('lenslink_users') || '[]');
+                if (!users.find(u => u.id === samplePhotographer.id)) {
+                    users.push(samplePhotographer);
+                    localStorage.setItem('lenslink_users', JSON.stringify(users));
+                }
+                
+                // Add to photographers list if not exists
+                let photographers = JSON.parse(localStorage.getItem('lenslink_photographers') || '[]');
+                if (!photographers.find(p => p.id === samplePhotographer.id)) {
+                    photographers.push(samplePhotographer);
+                    localStorage.setItem('lenslink_photographers', JSON.stringify(photographers));
+                }
+                
+                log('✓ Successfully logged in as Jane Doe (Photographer)', 'success');
+                log('✓ User data stored in localStorage', 'success');
+                log('💡 Now open the main app to see the logged-in state', 'info');
+                
+            } catch (error) {
+                log(`❌ Simulation error: ${error.message}`, 'error');
+            }
+        }
+
+        function simulateRegister() {
+            clearOutput();
+            log('🧪 Simulating Registration...', 'info');
+            
+            try {
+                const testUser = {
+                    id: 'user_' + Date.now(),
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    password: 'password123',
+                    role: 'client',
+                    phone: '+1-555-TEST',
+                    profileImage: 'https://placehold.co/100x100/34d399/ffffff?text=TU'
+                };
+                
+                let users = JSON.parse(localStorage.getItem('lenslink_users') || '[]');
+                users.push(testUser);
+                localStorage.setItem('lenslink_users', JSON.stringify(users));
+                localStorage.setItem('lenslink_current_user', JSON.stringify(testUser));
+                
+                log('✓ Successfully registered Test User (Client)', 'success');
+                log('✓ User data stored in localStorage', 'success');
+                log('💡 Now open the main app to see the registered user state', 'info');
+                
+            } catch (error) {
+                log(`❌ Registration simulation error: ${error.message}`, 'error');
+            }
+        }
+
+        function openMainApp() {
+            window.open('index.html', '_blank');
+        }
+
+        // Initialize
+        window.onload = function() {
+            log('🔧 LensLink Debug Tool Ready', 'info');
+            log('🎯 Use the buttons above to diagnose sign in/register issues', 'info');
+            log('🌐 Test functions and then check the main app', 'info');
+        };
+    </script>
+</body>
+</html>
