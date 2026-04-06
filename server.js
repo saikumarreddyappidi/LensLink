@@ -222,8 +222,18 @@ async function attemptDBConnect() {
     const User = require('./models/User');
     const adminEmail  = process.env.ADMIN_EMAIL    || 'saikumarreddyappidi9@gmail.com';
     const adminPass   = process.env.ADMIN_PASSWORD || 'Admin@LensLink2026';
-    const existingAdmin = await User.findOne({ role: 'admin' });
-    if (!existingAdmin) {
+    
+    // Check if the user already exists by email
+    const existingUser = await User.findOne({ email: adminEmail });
+    
+    if (existingUser) {
+      if (existingUser.role !== 'admin') {
+        // Upgrade existing user to admin
+        existingUser.role = 'admin';
+        await existingUser.save();
+        console.log(`👑 Upgraded existing user ${adminEmail} to admin role.`);
+      }
+    } else {
       await User.create({
         name      : 'Admin',
         email     : adminEmail,
