@@ -220,11 +220,11 @@ async function attemptDBConnect() {
 
     // ── Auto-seed admin account ────────────────────────────
     const User = require('./models/User');
-    const adminEmail  = process.env.ADMIN_EMAIL    || 'saikumarreddyappidi9@gmail.com';
+    const adminEmail  = (process.env.ADMIN_EMAIL || 'saikumarreddyappidi9@gmail.com').trim();
     const adminPass   = process.env.ADMIN_PASSWORD || 'Admin@LensLink2026';
     
-    // Check if the user already exists by email
-    const existingUser = await User.findOne({ email: adminEmail });
+    // Check if the user already exists by email (case-insensitive)
+    const existingUser = await User.findOne({ email: new RegExp('^' + adminEmail + '$', 'i') });
     
     if (existingUser) {
       if (existingUser.role !== 'admin') {
@@ -234,16 +234,24 @@ async function attemptDBConnect() {
         console.log(`👑 Upgraded existing user ${adminEmail} to admin role.`);
       }
     } else {
-      await User.create({
-        name      : 'Admin',
-        email     : adminEmail,
-        password  : adminPass,
-        role      : 'admin',
-        isVerified: true,
-        isActive  : true,
-      });
-      console.log(`👑 Admin account created → ${adminEmail}`);
-      console.log(`🔑 Admin password        → ${adminPass}`);
+      try {
+        await User.create({
+          name      : 'Admin',
+          email     : adminEmail,
+          password  : adminPass,
+          role      : 'admin',
+          isVerified: true,
+          isActive  : true,
+        });
+        console.log(`👑 Admin account created → ${adminEmail}`);
+        console.log(`🔑 Admin password        → ${adminPass}`);
+      } catch (err) {
+        if (err.code === 11000) {
+          console.log(`👑 Admin account ${adminEmail} already exists (duplicate key). Moving on...`);
+        } else {
+          throw err;
+        }
+      }
     }
     return true;
   } catch (err) {
