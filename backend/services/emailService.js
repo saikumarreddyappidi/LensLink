@@ -4,7 +4,9 @@ const nodemailer = require('nodemailer');
 // Create transporter - using Gmail SMTP
 const createTransporter = () => {
     return nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // Use SSL to bypass Render blocks on port 587
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS // App password for Gmail
