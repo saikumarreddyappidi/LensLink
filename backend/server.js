@@ -49,6 +49,44 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(helmet());
+
+// Block common secret/config probes and dotfiles to reduce scanning noise
+const BLOCKED_PREFIXES = [
+    '/.env',
+    '/.git',
+    '/.aws',
+    '/.vscode',
+    '/.svn',
+    '/.hg',
+    '/config',
+    '/configs',
+    '/secrets',
+    '/credentials',
+    '/env',
+    '/settings',
+    '/backup',
+    '/storage',
+    '/docker-compose',
+    '/serverless',
+    '/appsettings',
+    '/application',
+    '/swagger',
+    '/phpinfo',
+    '/info.php'
+];
+
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    const lower = req.path.toLowerCase();
+    if (lower.startsWith('/.well-known')) return next();
+    if (BLOCKED_PREFIXES.some(prefix => lower.startsWith(prefix))) {
+        return res.status(404).json({ message: 'Not found' });
+    }
+    if (/\.(yml|yaml|env|ini|cfg|log|sql|pem|key|bak|backup|zip|tar|gz)$/i.test(lower)) {
+        return res.status(404).json({ message: 'Not found' });
+    }
+    return next();
+});
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 

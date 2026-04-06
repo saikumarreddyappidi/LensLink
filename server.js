@@ -111,6 +111,44 @@ app.use(
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Block common secret/config probes and dotfiles to reduce scanning noise
+const BLOCKED_PREFIXES = [
+  '/.env',
+  '/.git',
+  '/.aws',
+  '/.vscode',
+  '/.svn',
+  '/.hg',
+  '/config',
+  '/configs',
+  '/secrets',
+  '/credentials',
+  '/env',
+  '/settings',
+  '/backup',
+  '/storage',
+  '/docker-compose',
+  '/serverless',
+  '/appsettings',
+  '/application',
+  '/swagger',
+  '/phpinfo',
+  '/info.php'
+];
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  const lower = req.path.toLowerCase();
+  if (lower.startsWith('/.well-known')) return next();
+  if (BLOCKED_PREFIXES.some(prefix => lower.startsWith(prefix))) {
+    return res.status(404).send('Not found');
+  }
+  if (/\.(yml|yaml|env|ini|cfg|log|sql|pem|key|bak|backup|zip|tar|gz)$/i.test(lower)) {
+    return res.status(404).send('Not found');
+  }
+  return next();
+});
+
 // Static files – serve index.html + all assets from project root
 app.use(express.static(path.join(__dirname)));
 
