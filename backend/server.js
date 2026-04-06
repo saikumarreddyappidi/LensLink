@@ -13,6 +13,7 @@ const photographerRoutes = require('./routes/photographers');
 const bookingRoutes = require('./routes/bookings');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
+const adminSetupRoutes = require('./routes/admin-setup');
 
 const User = require('./models/User');
 const Photographer = require('./models/Photographer');
@@ -107,6 +108,7 @@ app.use('/api/photographers', photographerRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminSetupRoutes);
 
 app.get('/', (req, res) => {
     res.json({

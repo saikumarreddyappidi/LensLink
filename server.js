@@ -35,6 +35,7 @@ const photographerRoutes = require('./routes/photographers');
 const bookingRoutes      = require('./routes/bookings');
 const feedbackRoutes     = require('./routes/feedback');
 const adminRoutes        = require('./routes/admin');
+const adminSetupRoutes   = require('./routes/admin-setup');
 
 // ── App setup ─────────────────────────────────────────────
 const app = express();
@@ -120,6 +121,7 @@ app.use('/api/photographers', photographerRoutes);
 app.use('/api/bookings',      bookingRoutes);
 app.use('/api/feedback',      feedbackRoutes);
 app.use('/api/admin',         adminRoutes);
+app.use('/api/admin',         adminSetupRoutes);
 
 // ── Catch-all: serve index.html for SPA routing ───────────
 // Must come AFTER all /api routes so API 404s still return JSON.
