@@ -166,6 +166,16 @@ const photographerSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
+  coordinates: {
+    lat: {
+      type: Number,
+      required: false
+    },
+    lng: {
+      type: Number,
+      required: false
+    }
+  },
   isVerified: {
     type: Boolean,
     default: false

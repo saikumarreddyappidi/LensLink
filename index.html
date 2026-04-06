@@ -17,6 +17,8 @@
             emailjs.init('CwsYX5H2E_UgSznPF');
         })();
     </script>
+    <!-- Google Maps API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZRluvtso2rdDIzZRvniLNNGNeHMnbc20"></script>
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -282,30 +284,42 @@
                 <p class="text-lg text-slate-600 mt-2">Browse our talented photographers and book your perfect session.</p>
             </div>
 
-            <!-- Search Bar -->
-            <div class="mb-8 bg-white p-4 rounded-lg shadow-sm flex flex-col md:flex-row gap-4">
-                <input type="text" id="photographer-search" placeholder="Search by name, e.g., 'Jane Doe'" class="flex-grow p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent">
-                <select id="specialty-filter" class="p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent">
-                    <option value="">All Specialties</option>
-                    <option value="weddings">Weddings</option>
-                    <option value="portraits">Portraits</option>
-                    <option value="events">Events</option>
-                    <option value="commercial">Commercial</option>
-                    <option value="fashion">Fashion</option>
-                    <option value="nature">Nature</option>
-                    <option value="street">Street Photography</option>
-                    <option value="sports">Sports</option>
-                    <option value="other">Other</option>
-                </select>
-                <button onclick="searchRegisteredPhotographers()" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-md hover:bg-slate-700">Search</button>
+            <!-- Search Bar & View Toggle -->
+            <div class="mb-8 bg-white p-4 rounded-lg shadow-sm">
+                <div class="flex flex-col md:flex-row gap-4 mb-4">
+                    <input type="text" id="photographer-search" placeholder="Search by name, e.g., 'Jane Doe'" class="flex-grow p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent">
+                    <select id="specialty-filter" class="p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-400 focus:border-transparent">
+                        <option value="">All Specialties</option>
+                        <option value="weddings">Weddings</option>
+                        <option value="portraits">Portraits</option>
+                        <option value="events">Events</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="nature">Nature</option>
+                        <option value="street">Street Photography</option>
+                        <option value="sports">Sports</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <button onclick="searchRegisteredPhotographers()" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-md hover:bg-slate-700">Search</button>
+                </div>
+                <!-- View Toggle Buttons -->
+                <div class="flex gap-2">
+                    <button id="view-list-btn" onclick="switchPhotographerView('list')" class="flex-1 py-2 px-4 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition-colors">📋 List View</button>
+                    <button id="view-map-btn" onclick="switchPhotographerView('map')" class="flex-1 py-2 px-4 bg-slate-300 text-slate-700 font-semibold rounded-md hover:bg-slate-400 transition-colors">🗺️ Map View</button>
+                </div>
             </div>
 
-            <!-- Photographer Grid -->
+            <!-- Photographer Grid (List View) -->
             <div id="registered-photographers-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 <!-- Dynamic photographer cards will be loaded here -->
                 <div class="text-center py-8 col-span-full">
                     <p class="text-slate-500">Loading photographers...</p>
                 </div>
+            </div>
+
+            <!-- Map Container (Map View) -->
+            <div id="photographer-map-container" class="hidden mb-8">
+                <div id="photographer-map" class="w-full h-96 md:h-screen rounded-lg shadow-lg"></div>
             </div>
         </div>
 
@@ -4013,9 +4027,11 @@ Thank you for your booking! â“¨
                 const data = await res.json();
                 if (data.success && data.photographers && data.photographers.length > 0) {
                     allPhotographers = data.photographers.map(normalizePhotographer);
+                    window.currentFilteredPhotographers = allPhotographers;
                     displayRegisteredPhotographers(allPhotographers);
                 } else {
                     allPhotographers = [];
+                    window.currentFilteredPhotographers = [];
                     displayRegisteredPhotographers([]);
                 }
             } catch (e) {
@@ -4067,6 +4083,118 @@ Thank you for your booking! â“¨
             });
 
             displayRegisteredPhotographers(filtered);
+            // Store current filtered photographers for map display
+            window.currentFilteredPhotographers = filtered;
+        }
+
+        // Switch between list and map views
+        window.switchPhotographerView = function(view) {
+            const gridContainer = document.getElementById('registered-photographers-grid');
+            const mapContainer = document.getElementById('photographer-map-container');
+            const listBtn = document.getElementById('view-list-btn');
+            const mapBtn = document.getElementById('view-map-btn');
+
+            if (view === 'list') {
+                gridContainer.classList.remove('hidden');
+                mapContainer.classList.add('hidden');
+                listBtn.classList.add('bg-orange-500', 'text-white');
+                listBtn.classList.remove('bg-slate-300', 'text-slate-700');
+                mapBtn.classList.remove('bg-orange-500', 'text-white');
+                mapBtn.classList.add('bg-slate-300', 'text-slate-700');
+            } else if (view === 'map') {
+                gridContainer.classList.add('hidden');
+                mapContainer.classList.remove('hidden');
+                mapBtn.classList.add('bg-orange-500', 'text-white');
+                mapBtn.classList.remove('bg-slate-300', 'text-slate-700');
+                listBtn.classList.remove('bg-orange-500', 'text-white');
+                listBtn.classList.add('bg-slate-300', 'text-slate-700');
+                
+                // Initialize and display map
+                setTimeout(() => {
+                    initializePhotographerMap(window.currentFilteredPhotographers || allPhotographers);
+                }, 100);
+            }
+        }
+
+        // Initialize Google Map with photographer markers
+        let photographerMapInstance = null;
+        let photographerMarkers = [];
+
+        window.initializePhotographerMap = function(photographers) {
+            if (!photographers || photographers.length === 0) {
+                alert('No photographers to display on map');
+                return;
+            }
+
+            const mapContainer = document.getElementById('photographer-map');
+            if (!mapContainer) return;
+
+            // Default center (user's city or world center)
+            let center = { lat: 20.5937, lng: 78.9629 }; // India center
+            let bounds = new window.google.maps.LatLngBounds();
+
+            // Clear existing markers
+            photographerMarkers.forEach(marker => marker.setMap(null));
+            photographerMarkers = [];
+
+            // Create map if not exists
+            if (!photographerMapInstance) {
+                photographerMapInstance = new window.google.maps.Map(mapContainer, {
+                    zoom: 10,
+                    center: center,
+                    mapTypeId: 'roadmap'
+                });
+            }
+
+            // Add markers for each photographer with location
+            photographers.forEach(photographer => {
+                if (photographer.coordinates && photographer.coordinates.lat && photographer.coordinates.lng) {
+                    const markerPosition = {
+                        lat: parseFloat(photographer.coordinates.lat),
+                        lng: parseFloat(photographer.coordinates.lng)
+                    };
+                    bounds.extend(markerPosition);
+
+                    const marker = new window.google.maps.Marker({
+                        position: markerPosition,
+                        map: photographerMapInstance,
+                        title: photographer.name,
+                        icon: 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png'
+                    });
+
+                    // Create info window
+                    const infoWindow = new window.google.maps.InfoWindow({
+                        content: `
+                            <div class="p-3 w-64">
+                                <img src="${photographer.profileImage}" alt="${photographer.name}" class="w-full h-32 object-cover rounded-md mb-2">
+                                <h3 class="font-bold text-lg">${photographer.name}</h3>
+                                <p class="text-sm text-gray-600">${photographer.specialties ? photographer.specialties.join(', ') : 'Photographer'}</p>
+                                <p class="text-sm text-gray-500 mb-2">${photographer.location || 'Location not specified'}</p>
+                                <p class="text-orange-600 font-semibold mb-3">$${photographer.hourlyRate || 150}/hour</p>
+                                <button onclick="viewPhotographerProfile('${photographer.id}')" 
+                                    class="w-full bg-orange-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-orange-600 transition-colors text-sm">
+                                    View Profile & Book
+                                </button>
+                            </div>
+                        `
+                    });
+
+                    marker.addListener('click', () => {
+                        // Close all other info windows
+                        document.querySelectorAll('.gm-ui-hover-effect').forEach(el => {
+                            if (el !== marker) el.infoWindow?.close?.();
+                        });
+                        infoWindow.open(photographerMapInstance, marker);
+                    });
+
+                    photographerMarkers.push(marker);
+                }
+            });
+
+            // Fit bounds if markers exist
+            if (photographerMarkers.length > 0) {
+                photographerMapInstance.fitBounds(bounds);
+            }
         }
 
         // Search photographers with filters - Make globally accessible

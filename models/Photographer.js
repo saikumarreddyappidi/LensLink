@@ -29,6 +29,10 @@ const photographerSchema = new mongoose.Schema({
       index: '2dsphere'
     }
   },
+  coordinates: {
+    lat: Number,
+    lng: Number
+  },
   portfolio: [{
     title: String,
     description: String,
