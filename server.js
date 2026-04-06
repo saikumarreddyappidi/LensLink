@@ -158,8 +158,9 @@ app.use('/api/users',         userRoutes);
 app.use('/api/photographers', photographerRoutes);
 app.use('/api/bookings',      bookingRoutes);
 app.use('/api/feedback',      feedbackRoutes);
-app.use('/api/admin',         adminRoutes);
+// Mount setup routes first to avoid adminRoutes swallowing or blocking
 app.use('/api/admin',         adminSetupRoutes);
+app.use('/api/admin',         adminRoutes);
 
 // ── Catch-all: serve index.html for SPA routing ───────────
 // Must come AFTER all /api routes so API 404s still return JSON.
